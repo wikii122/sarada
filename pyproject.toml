@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "sarada"
+version = "0.1.0"
+description = ""
+authors = ["Wiktor <wikii122@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+music21 = "^7.1.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.5"
+hypothesis = "^6.24.5"
+black = {version = "^21.11b1", allow-prereleases = true}
+mypy = "^0.910"
+bandit = "^1.7.1"
+ipython = "^7.29.0"
+ipdb = "^0.13.9"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
