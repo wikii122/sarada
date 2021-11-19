@@ -41,13 +41,6 @@ repos:
     entry: poetry run prospector
     language: system
     files: \.py$
-- repo: local
-  hooks:
-  - id: system
-    name: mypy
-    entry: poetry run python -m mypy sarada\ tests\
-    language: system
-    files: \.py$
 - repo: https://github.com/myint/rstcheck
   rev: "3f92957478422df87bd730abde66f089cc1ee19b"
   hooks:
