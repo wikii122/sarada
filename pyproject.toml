@@ -7,9 +7,15 @@ authors = ["Wiktor <wikii122@gmail.com>"]
 [tool.black]
 include = ["src", "tests"]
 
+[tool.pylint.basic]
+const-naming-style = "snake_case"
+
 [tool.isort]
 profile = "black"
 line_length = 88
+
+[tool.pytest.ini_options]
+addopts = "--doctest-modules"
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -25,6 +31,8 @@ ipython = "^7.29.0"
 ipdb = "^0.13.9"
 pre-commit = "^2.15.0"
 isort = "^5.10.1"
+pylint = "^2.11.1"
+prospector = "^1.5.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

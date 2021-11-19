@@ -1,0 +1,4 @@
+strictness: medium
+
+bandit:
+  run: true
