@@ -1,2 +1,3 @@
 [bandit]
+targets = sarada
 exclude = .\tests
