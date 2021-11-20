@@ -29,6 +29,12 @@ class Numeris(Generic[T]):
 
     def __init__(self, data: List[List[T]]):
         self.data: Final[Dataset] = tuple(tuple(d) for d in data)
+        self.mapping: Dict[T, int] = {}
+        self.reverse_mapping: Dict[int, T] = {}
+        for dataset in self.data:
+            for key in dataset:
+                self.mapping.setdefault(key, len(self.mapping))
+                self.reverse_mapping.setdefault(self.mapping[key], key)
 
     def make_series(self, window_size: int = 100) -> Generator[Series, None, None]:
         """
@@ -71,11 +77,17 @@ class Numeris(Generic[T]):
         >>> numeris.numerize(["a", "b", "c"])
         [0, 1, 2]
         """
-        mapping: Dict[T, int] = {}
-        for x in sorted(set(dataset)):
-            mapping.setdefault(x, len(mapping))
+        return [self.mapping[x] for x in dataset]
 
-        return [mapping[x] for x in dataset]
+    def denumerize(self, numerized: Iterable[int]) -> List[T]:
+        """
+        Replace values in iterable containing numerized dataset with original values.
+
+        >>> numeris = Numeris(["abcdefg"])
+        >>> numeris.denumerize([0, 1, 2])
+        ['a', 'b', 'c']
+        """
+        return [self.reverse_mapping[x] for x in numerized]
 
 
 class Series(NamedTuple):

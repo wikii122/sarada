@@ -58,3 +58,15 @@ def test_numeris_numerize_returns_numbers(texts: List[List[str]]) -> None:
     numerized = numeris.numerize(numeris.data[0])
 
     assert all(isinstance(num, int) for num in numerized)
+
+
+@given(lists(lists(text(max_size=3)), max_size=5))
+def test_numeris_numerize_is_reversable(texts: List[List[str]]) -> None:
+    numeris = Numeris(texts)
+    assume(numeris.data)
+    data = list(numeris.data[0])
+    print(data)
+    print(numeris.mapping)
+    print(numeris.reverse_mapping)
+
+    assert numeris.denumerize(numeris.numerize(data)) == data
