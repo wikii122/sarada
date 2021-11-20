@@ -15,7 +15,7 @@ from typing import (
     TypeVar,
 )
 
-T = TypeVar("T")
+T = TypeVar("T")  # pylint: disable=invalid-name
 
 Dataset = Tuple[Tuple[T, ...], ...]
 
@@ -60,7 +60,6 @@ class Numeris(Generic[T]):
             ...
         StopIteration
         """
-
         for dataset in self.data:
             numerized = self.numerize(dataset)
             inps = numerized[:window_size]
@@ -91,7 +90,7 @@ class Numeris(Generic[T]):
 
 
 class Series(NamedTuple):
-    """A single series of data containing input/output values"""
+    """A single series of data containing input/output values."""
 
     input: List[int]
     output: List[int]

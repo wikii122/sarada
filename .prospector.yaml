@@ -14,5 +14,7 @@ pylint:
     const-naming-style: snake_case
     max-line-length: 88
 pep8:
+  disable:
+  - E203
   options:
     max-line-length: 88
