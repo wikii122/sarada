@@ -9,6 +9,7 @@ include = ["src", "tests"]
 
 [tool.pylint.basic]
 const-naming-style = "snake_case"
+disable = ["E501"]
 
 [tool.isort]
 profile = "black"
@@ -48,6 +49,7 @@ addopts = ["--doctest-modules"]
 [tool.poetry.dependencies]
 python = "^3.10"
 music21 = "^7.1.0"
+loguru = "^0.5.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"

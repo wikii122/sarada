@@ -4,7 +4,9 @@ Run application from the command line.
 from pathlib import Path
 from typing import Final, Generator
 
-from sarada.categorization import NoteCategorizer
+from loguru import logger
+
+from sarada.notebook import Notebook
 from sarada.parsing import extract_notes
 
 supported_extensions: Final = [".abc"]
@@ -12,7 +14,7 @@ supported_extensions: Final = [".abc"]
 
 def run() -> None:
     """
-    Execute code for specified library
+    Execute code for specified library.
     """
     starting_path = (
         "C:\\Users\\wikii\\AppData\\Local\\pypoetry\\Cache\\virtualenvs\\"
@@ -23,7 +25,7 @@ def run() -> None:
     scores = read_files(path)
     notes_source = extract_notes(scores)
 
-    notes = NoteCategorizer()
+    notes = Notebook()
     for note in notes_source:
         notes.add(note)
 
@@ -32,9 +34,10 @@ def run() -> None:
 
 def read_files(path: Path) -> Generator[str, None, None]:
     """
-    Iterates over content of musical files in provided directory.
+    Iterate over content of musical files in provided directory.
     """
     for filepath in path.iterdir():
+        logger.debug("Opening file {path}", path=filepath)
         if filepath.is_file() and filepath.suffix in supported_extensions:
             with open(filepath, encoding="utf-8") as audio_file:
                 yield audio_file.read()

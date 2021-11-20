@@ -4,6 +4,7 @@ Categorize and normalize notes.
 
 from typing import Dict, Iterable, List, NewType, cast
 
+from loguru import logger
 from music21.note import GeneralNote, Note
 
 Key = NewType("Key", int)
@@ -11,10 +12,12 @@ Pitch = NewType("Pitch", str)
 Score = Iterable[GeneralNote]
 
 
-class NoteCategorizer:
+class Notebook:
     """
-    Storage for keeping sets of notes efficiently and allowing
-    for normalization of them.
+    Storage for keeping sets of notes efficiently.
+
+    Allows for storage of notes, pitches to be exact, and perform further operations
+    on them, such as for normalization.
     """
 
     def __init__(self) -> None:
@@ -37,10 +40,11 @@ class NoteCategorizer:
 
             noteset.append(pitch)
 
+        logger.debug("Adding noteset of {} notes", len(noteset))
         self.notes.append(noteset)
 
     def __str__(self) -> str:
-        return f"<{ self.__class__ } containing { len(self) } note sets>"
+        return f"<{ self.__class__.__name__ } containing { len(self) } note sets>"
 
     def __len__(self) -> int:
         return len(self.notes)

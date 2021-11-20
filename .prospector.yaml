@@ -1,1 +1,18 @@
 strictness: medium
+pep257:
+  disable:
+  - D105
+  - D107
+  - D200
+  - D203
+  - D212
+
+pylint:
+  disable:
+  - line-too-long  # Already checked by pep8
+  options:
+    const-naming-style: snake_case
+    max-line-length: 88
+pep8:
+  options:
+    max-line-length: 88
