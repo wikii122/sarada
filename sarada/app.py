@@ -39,7 +39,9 @@ def run() -> None:
 
     logger.info("Starting processing data")
 
-    print(notes)
+    numeris = notes.numerize()
+
+    print(numeris.make_series())
 
 
 def read_files(path: Path) -> Generator[str, None, None]:
