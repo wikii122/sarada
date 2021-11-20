@@ -1,0 +1,34 @@
+version: 2.1
+orbs:
+  python: circleci/python@1.2
+jobs:
+  analysis:
+    docker:
+    - image: cimg/python:3.10
+    steps:
+    - checkout
+    - python/install-packages:
+        pkg-manager: poetry
+    - run:
+        name: Run linters
+        command: poetry run prospector . -s veryhigh
+    - run:
+        name: Run mypy
+        command: poetry run mypy sarada tests
+  test:
+    docker:
+    - image: cimg/python:3.10
+    steps:
+    - checkout
+    - python/install-packages:
+        pkg-manager: poetry
+    - run:
+        name: Run tests
+        command: poetry run pytest
+
+
+workflows:
+  test:
+    jobs:
+    - analysis
+    - test
