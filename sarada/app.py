@@ -11,6 +11,7 @@ from sarada.notebook import Notebook
 from sarada.parsing import extract_notes
 
 supported_extensions: Final = [".abc"]
+window_size: Final = 100
 
 
 def run() -> None:
@@ -40,8 +41,9 @@ def run() -> None:
     logger.info("Starting processing data")
 
     numeris = notes.numerize()
+    series = numeris.make_series(window_size=window_size)
 
-    print(numeris.make_series())
+    print(series)
 
 
 def read_files(path: Path) -> Generator[str, None, None]:

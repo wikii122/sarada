@@ -1,6 +1,6 @@
 from typing import List
 
-from hypothesis import given
+from hypothesis import assume, given
 from hypothesis.strategies import data, integers, lists, text
 
 from sarada.numeris import Numeris
@@ -49,3 +49,12 @@ def test_numeris_series_generation_is_shifted(texts: List[List[str]], data) -> N
 
     for line in lines:
         assert line.input[1:] == line.output[: size - 1]
+
+
+@given(lists(lists(text(max_size=3)), max_size=5))
+def test_numeris_numerize_returns_numbers(texts: List[List[str]]) -> None:
+    numeris = Numeris(texts)
+    assume(numeris.data)
+    numerized = numeris.numerize(numeris.data[0])
+
+    assert all(isinstance(num, int) for num in numerized)
