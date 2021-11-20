@@ -1,6 +1,7 @@
 """
 Run application from the command line.
 """
+import sys
 from pathlib import Path
 from typing import Final, Generator
 
@@ -21,6 +22,7 @@ def run() -> None:
         "sarada-h5EBRAqw-py3.10\\Lib\\site-packages\\music21\\corpus\\essenFolksong\\"
     )
     path = Path(starting_path)
+    logger.info("Processing files in {path}", path=str(path))
 
     scores = read_files(path)
     notes_source = extract_notes(scores)
@@ -28,6 +30,14 @@ def run() -> None:
     notes = Notebook()
     for note in notes_source:
         notes.add(note)
+
+    logger.info("Finish loading files")
+
+    if not notes:
+        logger.error("No data was found")
+        sys.exit(1)
+
+    logger.info("Starting processing data")
 
     print(notes)
 

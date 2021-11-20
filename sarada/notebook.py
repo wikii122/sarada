@@ -1,11 +1,14 @@
 """
 Categorize and normalize notes.
 """
+from __future__ import annotations
 
-from typing import Dict, Iterable, List, NewType, cast
+from typing import Iterable, List, NewType, cast
 
 from loguru import logger
 from music21.note import GeneralNote, Note
+
+from sarada.numeris import Numeris
 
 Key = NewType("Key", int)
 Pitch = NewType("Pitch", str)
@@ -21,7 +24,6 @@ class Notebook:
     """
 
     def __init__(self) -> None:
-        self.note_key: Dict[Pitch, Key] = {}
         self.notes: List[List[Pitch]] = []
 
     def add(self, notes: Score) -> None:
@@ -42,6 +44,12 @@ class Notebook:
 
         logger.debug("Adding noteset of {} notes", len(noteset))
         self.notes.append(noteset)
+
+    def numerize(self) -> Numeris[Pitch]:
+        """
+        Create new Numeris from current state of Notebook.
+        """
+        return Numeris[Pitch](self.notes)
 
     def __str__(self) -> str:
         return f"<{ self.__class__.__name__ } containing { len(self) } note sets>"
