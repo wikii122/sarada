@@ -4,12 +4,13 @@ Run application from the command line.
 from pathlib import Path
 from typing import Final, Generator
 
+from sarada.categorization import NoteCategorizer
 from sarada.parsing import extract_notes
 
 supported_extensions: Final = [".abc"]
 
 
-def run():
+def run() -> None:
     """
     Execute code for specified library
     """
@@ -20,9 +21,13 @@ def run():
     path = Path(starting_path)
 
     scores = read_files(path)
-    notes = extract_notes(scores)
+    notes_source = extract_notes(scores)
 
-    print(next(notes))
+    notes = NoteCategorizer()
+    for note in notes_source:
+        notes.add(note)
+
+    print(notes)
 
 
 def read_files(path: Path) -> Generator[str, None, None]:

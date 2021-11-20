@@ -4,7 +4,7 @@ from music21.note import Note
 from sarada.parsing import extract_notes
 
 
-def test_extract_note_pitch():
+def test_extract_note_pitch() -> None:
     """Check if note pitch is extracted"""
     abc = """
     X:1
@@ -19,11 +19,11 @@ def test_extract_note_pitch():
     note = next(notes)
 
     assert isinstance(note, Note)
-    assert note.pitch.step == "D"
+    assert note.pitch.step == "C"
     assert note.pitch.octave == 3
 
 
-def test_extract_note_chords():
+def test_extract_note_chords() -> None:
     """Check if note chords are extracted"""
     abc = """
     X:1
@@ -35,10 +35,10 @@ def test_extract_note_chords():
 
     notes = next(extract_notes([abc]))
     next(notes)  # Skip first "A
+    next(notes)  # Skip seconda "A
 
     chord = next(notes)
 
-    print(chord.__dict__)
     assert isinstance(chord, Chord)
     assert len(chord.notes) == 4
-    assert chord.figure == "Gm7"
+    assert chord.figure == "Gm7"  # type: ignore
