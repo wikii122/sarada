@@ -55,10 +55,10 @@ class Numeris(Generic[T]):
         >>> series = numeris.make_series(window_size=3)
 
         >>> next(series)
-        Series(input=[0.0, 0.25, 0.5], output=[0.25, 0.5, 0.75])
+        Series(input=[0.0, 0.25, 0.5], output=0.75)
 
         >>> next(series)
-        Series(input=[0.25, 0.5, 0.75], output=[0.5, 0.75, 1.0])
+        Series(input=[0.25, 0.5, 0.75], output=1.0)
 
         >>> next(series)
         Traceback (most recent call last):
@@ -67,11 +67,9 @@ class Numeris(Generic[T]):
         """
         for dataset in self.data:
             numerized = self.numerize(dataset)
-            inps = numerized[:window_size]
-            for idx in range(1, len(numerized) - window_size + 1):
-                outs = numerized[idx : idx + window_size]
-                yield Series(input=inps, output=outs)
-                inps = outs
+            for idx in range(0, len(numerized) - window_size):
+                inps = numerized[idx : idx + window_size]
+                yield Series(input=inps, output=numerized[idx + window_size])
 
     def numerize(self, dataset: Iterable[T]) -> List[float]:
         """
@@ -135,4 +133,4 @@ class Series(NamedTuple):
     """A single series of data containing input/output values."""
 
     input: List[float]
-    output: List[float]
+    output: float

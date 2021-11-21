@@ -23,16 +23,10 @@ def run() -> None:
         "sarada-h5EBRAqw-py3.10\\Lib\\site-packages\\music21\\corpus\\essenFolksong\\"
     )
     path = Path(starting_path)
+
     logger.info("Processing files in {path}", path=str(path))
-
-    scores = read_files(path)
-    notes_source = extract_notes(scores)
-
-    notes = Notebook()
-    for note in notes_source:
-        notes.add(note)
-
-    logger.info("Finish loading files")
+    notes = read_scores(path)
+    logger.info("Finished loading files")
 
     if not notes:
         logger.error("No data was found")
@@ -44,6 +38,20 @@ def run() -> None:
     series = numeris.make_series(window_size=window_size)
 
     print(series)
+
+
+def read_scores(path: Path) -> Notebook:
+    """
+    Open file on given path and aggregate them in Notebook instance.
+    """
+    scores = read_files(path)
+    notes_source = extract_notes(scores)
+
+    notes = Notebook()
+    for note in notes_source:
+        notes.add(note)
+
+    return notes
 
 
 def read_files(path: Path) -> Generator[str, None, None]:

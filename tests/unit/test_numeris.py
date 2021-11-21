@@ -20,7 +20,6 @@ def test_numeris_series_generation_generates_desired_len(
 
     for line in lines:
         assert len(line.input) == size
-        assert len(line.output) == size
 
 
 @given(
@@ -37,20 +36,26 @@ def test_numeris_series_generation_drops_too_short(
     assert not lines
 
 
-@given(lists(lists(text(max_size=3)), max_size=5), data())
+@given(lists(lists(text(max_size=3)), min_size=1, max_size=1), data())
 def test_numeris_series_generation_is_shifted(
     texts: List[List[str]], data: SearchStrategy
 ) -> None:
+    """
+    Check if input of last item is shifted by one in next input.
+
+    Predicate should hold only for single series on input.
+    """
     max_size = max(len(s) for s in texts) if texts else 0
     size: int = data.draw(integers(min_value=1, max_value=max_size)) if max_size else 1
 
     numeris = Numeris(texts)
     series = numeris.make_series(window_size=size)
 
-    lines = list(series)
-
-    for line in lines:
-        assert line.input[1:] == line.output[: size - 1]
+    prev = next(series, None)
+    for line in series:
+        assert prev is not None  # hint for mypy
+        assert line.input[-1] == prev.output
+        prev = line
 
 
 @given(lists(lists(text(max_size=3)), max_size=5))
