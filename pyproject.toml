@@ -41,7 +41,7 @@ follow_imports = "skip"
 addopts = ["--doctest-modules"]
 
 [tool.poetry.dependencies]
-python = "3.9.6"
+python = "^3.9,<3.10"
 music21 = "^7.1.0"
 loguru = "^0.5.3"
 numpy = "^1.21.4"
