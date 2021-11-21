@@ -16,6 +16,8 @@ from typing import (
     TypeVar,
 )
 
+from loguru import logger
+
 T = TypeVar("T")  # pylint: disable=invalid-name
 
 Dataset = Tuple[Tuple[T, ...], ...]
@@ -65,11 +67,30 @@ class Numeris(Generic[T]):
             ...
         StopIteration
         """
+        processed = 0
+        ommited = 0
         for dataset in self.data:
             numerized = self.numerize(dataset)
+            idx = 0
             for idx in range(0, len(numerized) - window_size):
                 inps = numerized[idx : idx + window_size]
                 yield Series(input=inps, output=numerized[idx + window_size])
+
+                processed += 1
+
+            if idx:
+                logger.debug(
+                    "Current dataset yielded {num} series, moving to next", num=idx
+                )
+            else:
+                ommited += 1
+                logger.debug(
+                    "Dataset of size {size} too short, ommiting", size=len(numerized)
+                )
+
+        logger.info("Yielded {num} series of data total", num=processed)
+        if ommited:
+            logger.warning("Dataset were ommited: {num} in total", num=ommited)
 
     def numerize(self, dataset: Iterable[T]) -> List[float]:
         """
