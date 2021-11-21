@@ -43,6 +43,8 @@ class Numeris(Generic[T]):
         self.mapping: Final[Mapping[T, int]] = mapping
         self.reverse_mapping: Final[Mapping[int, T]] = reverse_mapping
 
+        logger.debug("Found {size} distinct values", size=self.distinct_size)
+
     def make_series(self, window_size: int = 100) -> Generator[Series, None, None]:
         """
         Generate series of overlapping datasets from data using crawling windows.
@@ -57,10 +59,10 @@ class Numeris(Generic[T]):
         >>> series = numeris.make_series(window_size=3)
 
         >>> next(series)
-        Series(input=[0.0, 0.25, 0.5], output=0.75)
+        Series(input=[0.0, 0.25, 0.5], output=[0, 0, 0, 1, 0])
 
         >>> next(series)
-        Series(input=[0.25, 0.5, 0.75], output=1.0)
+        Series(input=[0.25, 0.5, 0.75], output=[0, 0, 0, 0, 1])
 
         >>> next(series)
         Traceback (most recent call last):
@@ -73,8 +75,9 @@ class Numeris(Generic[T]):
             numerized = self.numerize(dataset)
             idx = 0
             for idx in range(0, len(numerized) - window_size):
-                inps = numerized[idx : idx + window_size]
-                yield Series(input=inps, output=numerized[idx + window_size])
+                ins = numerized[idx : idx + window_size]
+                out = self.categorize(dataset[idx + window_size])
+                yield Series(input=ins, output=out)
 
                 processed += 1
 
@@ -142,6 +145,33 @@ class Numeris(Generic[T]):
 
         return self.reverse_mapping[key]
 
+    def categorize(self, val: T) -> List[int]:
+        """
+        Return array with zeroes and 1 on position marking value.
+
+        >>> numeris = Numeris(["abcde"])
+        >>> numeris.categorize("a")
+        [1, 0, 0, 0, 0]
+        """
+        array = [0] * (self.distinct_size)
+        array[self.mapping[val]] = 1
+
+        return array
+
+    def decategorize(self, val: List[int]) -> T:
+        """
+        Return normalized value to original.
+
+        >>> numeris = Numeris(["abcde"])
+        >>> numeris.decategorize([0, 1, 0, 0, 0])
+        'b'
+        """
+
+        searched = max(val)
+        idx = val.index(searched)
+
+        return self.reverse_mapping[idx]
+
     @property
     def distinct_size(self) -> int:
         """
@@ -154,4 +184,4 @@ class Series(NamedTuple):
     """A single series of data containing input/output values."""
 
     input: List[float]
-    output: float
+    output: List[int]

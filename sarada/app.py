@@ -7,6 +7,7 @@ from typing import Final, Generator
 
 from loguru import logger
 
+from sarada.neuron import teach_from_series
 from sarada.notebook import Notebook
 from sarada.parsing import extract_notes
 
@@ -20,7 +21,7 @@ def run() -> None:
     """
     starting_path = (
         "C:\\Users\\wikii\\AppData\\Local\\pypoetry\\Cache\\virtualenvs\\"
-        "sarada-h5EBRAqw-py3.10\\Lib\\site-packages\\music21\\corpus\\essenFolksong\\"
+        "sarada-h5EBRAqw-py3.9\\Lib\\site-packages\\music21\\corpus\\essenFolksong\\"
     )
     path = Path(starting_path)
 
@@ -37,7 +38,10 @@ def run() -> None:
     numeris = notes.numerize()
     series = numeris.make_series(window_size=window_size)
 
-    print(series)
+    logger.info("Starting teaching model")
+    model = teach_from_series(series, numeris.distinct_size)
+
+    print(model)
 
 
 def read_scores(path: Path) -> Notebook:

@@ -20,6 +20,7 @@ allow_untyped_globals = false
 check_untyped_defs = true
 disallow_any_explicit = true
 disallow_untyped_defs = true
+ignore_missing_imports = true
 no_implicit_optional = true
 show_error_codes = true
 strict_equality = true
@@ -27,13 +28,6 @@ strict_optional = true
 warn_redundant_casts = true
 warn_return_any = true
 warn_unreachable = true
-
-[[tool.mypy.overrides]]
-module = [
-    "music21",
-    "music21.*"
-]
-ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = [
@@ -47,9 +41,13 @@ follow_imports = "skip"
 addopts = ["--doctest-modules"]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "3.9.6"
 music21 = "^7.1.0"
 loguru = "^0.5.3"
+numpy = "^1.21.4"
+keras = "^2.7.0"
+tensorflow = "^2.7.0"
+better-exceptions = "^0.3.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"

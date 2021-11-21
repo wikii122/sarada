@@ -37,7 +37,7 @@ def test_numeris_series_generation_drops_too_short(
 
 
 @given(lists(lists(text(max_size=3)), min_size=1, max_size=1), data())
-def test_numeris_series_generation_is_shifted(
+def test_numeris_series_generation_outputs_length(
     texts: List[List[str]], data: SearchStrategy
 ) -> None:
     """
@@ -51,11 +51,29 @@ def test_numeris_series_generation_is_shifted(
     numeris = Numeris(texts)
     series = numeris.make_series(window_size=size)
 
-    prev = next(series, None)
     for line in series:
-        assert prev is not None  # hint for mypy
-        assert line.input[-1] == prev.output
-        prev = line
+        assert len(line.output) == numeris.distinct_size
+
+
+@given(lists(lists(text(max_size=3)), min_size=1, max_size=1), data())
+def test_numeris_series_generation_outputs_binary(
+    texts: List[List[str]], data: SearchStrategy
+) -> None:
+    """
+    Check if input of last item is shifted by one in next input.
+
+    Predicate should hold only for single series on input.
+    """
+    max_size = max(len(s) for s in texts) if texts else 0
+    size: int = data.draw(integers(min_value=1, max_value=max_size)) if max_size else 1
+
+    numeris = Numeris(texts)
+    series = numeris.make_series(window_size=size)
+
+    for line in series:
+        assert sum(line.output) == 1
+        assert 1 <= len(set(line.output)) <= 2
+        assert 1 in line.output
 
 
 @given(lists(lists(text(max_size=3)), max_size=5))
@@ -83,6 +101,15 @@ def test_numeris_normalize_is_reversable(texts: List[List[str]]) -> None:
     data = numeris.mapping.keys()
 
     assert all(numeris.denormalize_value(numeris.normalize_value(x)) == x for x in data)
+
+
+@given(lists(lists(text(max_size=3)), max_size=5))
+def test_numeris_categorize_is_reversable(texts: List[List[str]]) -> None:
+    numeris = Numeris(texts)
+    assume(numeris.data)
+    data = numeris.mapping.keys()
+
+    assert all(numeris.decategorize(numeris.categorize(x)) == x for x in data)
 
 
 @given(lists(lists(text(max_size=3)), max_size=5))
