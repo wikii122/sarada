@@ -1,7 +1,9 @@
 """
 Learning and generating data.
 """
-from typing import Final, Iterable, Optional, Tuple
+import itertools
+import random
+from typing import Final, Iterable, List, Optional, Tuple
 
 import numpy as np
 from keras import Sequential, callbacks, layers
@@ -83,6 +85,29 @@ class Neuron:
         logger.debug("Outputs size: {shape}", shape=outputs.shape)
 
         return inputs, outputs
+
+    def generate(self, length: int) -> List[float]:
+        """
+        Generate sequence of requested length musing model.
+        """
+        logger.debug("Attempting to generate series of {} values", length)
+        inset = [random.random() for _ in itertools.repeat(None, self.input_length)]
+
+        result = []
+        for i in range(length + self.input_length):
+            state = np.reshape(inset, (1, self.input_length, 1))
+
+            prediction = self.model.predict(state)
+
+            idx: int = int(np.argmax(prediction))
+
+            inset = inset[1:]
+            inset.append(idx / self.output_length)
+
+            if i >= self.input_length:
+                result.append(idx / self.output_length)
+
+        return result
 
     @property
     def model(self) -> Model:

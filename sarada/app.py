@@ -43,7 +43,14 @@ def run() -> None:
     model = Neuron(input_length=window_size, output_length=numeris.distinct_size)
     model.learn(series)
 
-    print(model)
+    logger.info("Learning finished")
+
+    logger.info("Starting generating data")
+    sequence = model.generate(100)
+
+    pitches = [numeris.denormalize_value(item) for item in sequence]
+
+    print(pitches)
 
 
 def read_scores(path: Path) -> Notebook:

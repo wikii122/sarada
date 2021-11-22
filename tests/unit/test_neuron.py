@@ -34,3 +34,17 @@ def test_make_model(x: int, y: int) -> None:
 
     assert neuron.model.input_shape[1] == x
     assert neuron.model.output_shape[1] == y
+
+
+@given(
+    integers(min_value=1, max_value=500),
+    integers(min_value=1, max_value=500),
+    integers(min_value=1, max_value=500),
+)
+@settings(max_examples=5, deadline=None)
+def test_generate_return_wanted_length(x: int, y: int, z: int) -> None:
+    neuron = Neuron(x, y)
+
+    seq = neuron.generate(z)
+
+    assert len(seq) == z
