@@ -3,13 +3,13 @@ Run application from the command line.
 """
 import sys
 from pathlib import Path
-from typing import Final, Generator
+from typing import Final, Generator, Iterable
 
 from loguru import logger
 
 from sarada.neuron import Neuron
-from sarada.notebook import Notebook
-from sarada.parsing import extract_notes
+from sarada.notebook import Notebook, Pitch
+from sarada.parsing import create_stream, extract_notes
 
 supported_extensions: Final = [".abc"]
 window_size: Final = 100
@@ -48,9 +48,9 @@ def run() -> None:
     logger.info("Starting generating data")
     sequence = model.generate(100)
 
-    pitches = [numeris.denormalize_value(item) for item in sequence]
-
-    print(pitches)
+    logger.info("Storing generated data")
+    pitches = numeris.denumerize(sequence)
+    store_sequence(pitches)
 
 
 def read_scores(path: Path) -> Notebook:
@@ -65,6 +65,16 @@ def read_scores(path: Path) -> Notebook:
         notes.add(note)
 
     return notes
+
+
+def store_sequence(pitches: Iterable[Pitch]) -> None:
+    """
+    Store sequence in midi file.
+    """
+    stream = create_stream(pitches)
+    path = "test_output.mid"
+    logger.debug("Saving file in {path}", path=path)
+    stream.write("midi", fp=path)
 
 
 def read_files(path: Path) -> Generator[str, None, None]:

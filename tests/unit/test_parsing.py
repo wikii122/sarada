@@ -1,11 +1,17 @@
+from typing import List
+
+from hypothesis import given
+from hypothesis.strategies import lists
 from music21.chord import Chord
 from music21.note import Note
 
-from sarada.parsing import extract_notes
+from sarada.notebook import Pitch
+from sarada.parsing import create_stream, extract_notes
+from tests.unit.strategies import pitches
 
 
 def test_extract_note_pitch() -> None:
-    """Check if note pitch is extracted"""
+    """Check if note pitch is extracted."""
     abc = """
     X:1
     T:Notes / pitches
@@ -24,7 +30,7 @@ def test_extract_note_pitch() -> None:
 
 
 def test_extract_note_chords() -> None:
-    """Check if note chords are extracted"""
+    """Check if note chords are extracted."""
     abc = """
     X:1
     T:Chord symbols
@@ -42,3 +48,20 @@ def test_extract_note_chords() -> None:
     assert isinstance(chord, Chord)
     assert len(chord.notes) == 4
     assert chord.figure == "Gm7"  # type: ignore
+
+
+@given(lists(pitches()))
+def test_create_stream_length_and_values(pitches: List[Pitch]) -> None:
+    stream = create_stream(pitches)
+    assert len(stream.notes) == len(pitches)
+    for note, pitch in zip(stream.notes, pitches):
+        assert str(note.pitch) == pitch
+
+
+@given(lists(pitches()))
+def test_create_stream_notes_offsets(pitches: List[Pitch]) -> None:
+    stream = create_stream(pitches)
+    prv: Note
+    nxt: Note
+    for prv, nxt in zip(stream.notes[:-1], stream.notes[1:]):
+        assert nxt.offset - prv.offset == 0.5

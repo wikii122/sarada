@@ -113,7 +113,11 @@ class Numeris(Generic[T]):
         >>> numeris.denumerize([0.0, 0.25, 0.5])
         ['a', 'b', 'c']
         """
-        return [self.denormalize_value(x) for x in numerized]
+        values = [self.denormalize_value(x) for x in numerized]
+
+        logger.debug("Denumerized list of {length} values", length=len(values))
+
+        return values
 
     def normalize_value(self, value: T) -> float:
         """

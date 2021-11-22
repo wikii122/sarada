@@ -1,21 +1,29 @@
 """
-Hypothesis strategies definitions
+Hypothesis strategies definitions.
 """
 from typing import Optional
 
 from hypothesis.strategies import composite, integers, none, sampled_from
 from music21.note import Note
 
+from sarada.notebook import Pitch
+
 
 @composite
-def notes(draw) -> Note:  # type: ignore
+def pitches(draw) -> Pitch:  # type: ignore
     name: str = draw(sampled_from("ABCDEFG"))
     accidental: str = draw(sampled_from(["", "#", "-"]))
     octave: Optional[int] = draw(integers(min_value=1, max_value=8) | none())
 
     if octave:
-        pitch = f"{name}{accidental}{octave}"
+        pitch = Pitch(f"{name}{accidental}{octave}")
     else:
-        pitch = f"{name}{accidental}"
+        pitch = Pitch(f"{name}{accidental}")
 
-    return Note(pitchName=pitch)
+    return pitch
+
+
+@composite
+def notes(draw) -> Note:  # type: ignore
+    pitch: Pitch = draw(pitches())
+    return Note(pitch)
