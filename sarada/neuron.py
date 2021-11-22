@@ -1,89 +1,93 @@
 """
 Learning and generating data.
 """
-from typing import Iterable, Tuple
+from typing import Final, Iterable, Optional, Tuple
 
 import numpy as np
 from keras import Sequential, callbacks, layers
 from keras.engine.training import Model
 from loguru import logger
-from numpy.typing._shape import _Shape
 
 from sarada.numeris import Series
 
 
-def teach_from_series(dataset: Iterable[Series], nwords: int) -> Model:
+class Neuron:
     """
-    Learn model from given dataset.
+    Manages model, it's inputs and data generetion.
     """
-    inputs, outputs = prepare_dataset(dataset)
 
-    model = assemble_model(inputs.shape, nwords)
+    def __init__(self, input_length: int, output_length: int):
+        self.input_length: Final = input_length
+        self.output_length: Final = output_length
+        self._model: Optional[Model] = None
 
-    teach(model, inputs, outputs)
+    def learn(self, dataset: Iterable[Series]) -> None:
+        """
+        Begin model learning with provided data.
 
-    return model
+        Learning process is saved during the process.
+        """
+        inputs, outputs = self.prepare_dataset(dataset)
 
+        filepath = "checkpoint"
+        checkpoint = callbacks.ModelCheckpoint(
+            filepath, monitor="loss", verbose=0, save_best_only=True, mode="min"
+        )
 
-def prepare_dataset(dataset: Iterable[Series]) -> Tuple[np.ndarray, np.ndarray]:
-    """
-    Convert series to size appriopriate for the learning mechanism.
-    """
-    logger.debug("Preparing data")
-    input_list = []
-    output_list = []
+        logger.debug("Starting fitting model")
+        self.model.fit(
+            inputs, outputs, epochs=200, batch_size=64, callbacks=[checkpoint]
+        )
+        logger.info("Model fitting finished")
 
-    for series in dataset:
-        input_list.append(series.input)
-        output_list.append(series.output)
+    def assemble(self) -> Model:
+        """
+        Create neuron network model.
+        """
+        logger.debug("Creating initial model")
+        layer_list = [
+            layers.LSTM(256, input_shape=(self.input_length, 1), return_sequences=True),
+            layers.Dropout(0.3),
+            layers.LSTM(512, return_sequences=True),
+            layers.Dropout(0.3),
+            layers.LSTM(256),
+            layers.Dense(256),
+            layers.Dropout(0.3),
+            layers.Dense(self.output_length),
+            layers.Activation("softmax"),
+        ]
 
-    inputs = np.reshape(input_list, (len(input_list), len(input_list[0]), 1))
-    outputs = np.array(output_list)
+        model = Sequential(layers=layer_list)
+        model.compile(loss="categorical_crossentropy", optimizer="rmsprop")
 
-    logger.debug("Inputs size: {shape}", shape=inputs.shape)
-    logger.debug("Outputs size: {shape}", shape=outputs.shape)
+        return model
 
-    return inputs, outputs
+    def prepare_dataset(
+        self, dataset: Iterable[Series]
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Convert series to size appriopriate for the learning mechanism.
+        """
+        logger.debug("Preparing data")
+        input_list = []
+        output_list = []
 
+        for series in dataset:
+            input_list.append(series.input)
+            output_list.append(series.output)
 
-def assemble_model(input_shape: _Shape, nwords: int) -> Model:
-    """
-    Create neuron network model.
-    """
-    logger.debug("Creating initial model")
-    layer_list = [
-        layers.LSTM(
-            256, input_shape=(input_shape[1], input_shape[2]), return_sequences=True
-        ),
-        layers.Dropout(0.3),
-        layers.LSTM(512, return_sequences=True),
-        layers.Dropout(0.3),
-        layers.LSTM(256),
-        layers.Dense(256),
-        layers.Dropout(0.3),
-        layers.Dense(nwords),
-        layers.Activation("softmax"),
-    ]
+        inputs = np.reshape(input_list, (len(input_list), self.input_length, 1))
+        outputs = np.array(output_list)
 
-    model = Sequential(layers=layer_list)
-    model.compile(loss="categorical_crossentropy", optimizer="rmsprop")
+        logger.debug("Inputs size: {shape}", shape=inputs.shape)
+        logger.debug("Outputs size: {shape}", shape=outputs.shape)
 
-    return model
+        return inputs, outputs
 
+    @property
+    def model(self) -> Model:
+        """Lazily created model instance."""
+        if self._model is None:
+            self._model = self.assemble()
 
-def teach(model: Model, inputs: np.ndarray, outputs: np.ndarray) -> None:
-    """
-    Begin model learning with data given.
-
-    Learning process is saved during the process.
-    """
-    filepath = "checkpoint"
-    checkpoint = callbacks.ModelCheckpoint(
-        filepath, monitor="loss", verbose=0, save_best_only=True, mode="min"
-    )
-
-    logger.debug("Starting fitting process")
-
-    model.fit(inputs, outputs, epochs=200, batch_size=64, callbacks=[checkpoint])
-
-    logger.info("Model fitting finished")
+        return self._model

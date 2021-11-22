@@ -7,7 +7,7 @@ from typing import Final, Generator
 
 from loguru import logger
 
-from sarada.neuron import teach_from_series
+from sarada.neuron import Neuron
 from sarada.notebook import Notebook
 from sarada.parsing import extract_notes
 
@@ -39,7 +39,9 @@ def run() -> None:
     series = numeris.make_series(window_size=window_size)
 
     logger.info("Starting teaching model")
-    model = teach_from_series(series, numeris.distinct_size)
+
+    model = Neuron(input_length=window_size, output_length=numeris.distinct_size)
+    model.learn(series)
 
     print(model)
 

@@ -166,7 +166,6 @@ class Numeris(Generic[T]):
         >>> numeris.decategorize([0, 1, 0, 0, 0])
         'b'
         """
-
         searched = max(val)
         idx = val.index(searched)
 

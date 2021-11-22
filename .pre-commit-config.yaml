@@ -38,7 +38,7 @@ repos:
   hooks:
   - id: system
     name: prospector
-    entry: poetry run prospector
+    entry: poetry run prospector --with-tool mypy
     language: system
     files: \.py$
 - repo: https://github.com/myint/rstcheck
