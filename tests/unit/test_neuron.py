@@ -37,11 +37,11 @@ def test_make_model(x: int, y: int) -> None:
 
 
 @given(
-    integers(min_value=1, max_value=500),
-    integers(min_value=1, max_value=500),
-    integers(min_value=1, max_value=500),
+    integers(min_value=1, max_value=100),
+    integers(min_value=1, max_value=100),
+    integers(min_value=1, max_value=100),
 )
-@settings(max_examples=5, deadline=None)
+@settings(max_examples=2, deadline=None)
 def test_generate_return_wanted_length(x: int, y: int, z: int) -> None:
     neuron = Neuron(x, y)
 
