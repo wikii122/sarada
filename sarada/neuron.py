@@ -101,7 +101,7 @@ class Neuron:
         logger.debug("Attempting to generate series of {} values", length)
         inset = [random.random() for _ in itertools.repeat(None, self.input_length)]
 
-        result = []
+        results: List[float] = []
         for i in range(length + self.input_length):
             state = np.reshape(inset, (1, self.input_length, 1))
 
@@ -110,12 +110,13 @@ class Neuron:
             idx: int = int(np.argmax(prediction))
 
             inset = inset[1:]
-            inset.append(idx / self.output_length)
+            normalized_output = idx / self.output_length
+            inset.append(normalized_output)
 
             if i >= self.input_length:
-                result.append(idx / self.output_length)
+                results.append(normalized_output)
 
-        return result
+        return results
 
     @property
     def model(self) -> Model:
