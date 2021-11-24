@@ -6,6 +6,7 @@ import random
 from typing import Final, Iterable, List, Optional, Tuple
 
 import numpy as np
+import tensorflow
 from keras import Sequential, callbacks, layers
 from keras.engine.training import Model
 from loguru import logger
@@ -46,6 +47,9 @@ class Neuron:
         """
         Create neuron network model.
         """
+        if not tensorflow.config.list_physical_devices("GPU"):
+            logger.warning("No GPU detected")
+
         logger.debug("Creating initial model")
         layer_list = [
             layers.LSTM(256, input_shape=(self.input_length, 1), return_sequences=True),
