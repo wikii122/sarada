@@ -1,6 +1,8 @@
 """
 Tests for categorization tools.
 """
+from __future__ import annotations
+
 from typing import List
 
 from hypothesis import given
@@ -13,7 +15,7 @@ from .strategies import notes
 
 
 def test_notebook_empty() -> None:
-    """Test adding notes to categorizer"""
+    """Test adding notes to categorizer."""
     notebook = Notebook()
     assert len(notebook) == 0
     assert not notebook
@@ -21,7 +23,7 @@ def test_notebook_empty() -> None:
 
 @given(lists(notes()))
 def test_notebook_add_note(note_list: List[Note]) -> None:
-    """Test adding notes to categorizer"""
+    """Test adding notes to categorizer."""
     notebook = Notebook()
     notebook.add(note_list)
 
@@ -30,7 +32,7 @@ def test_notebook_add_note(note_list: List[Note]) -> None:
 
 @given(lists(notes()))
 def test_notebook_numerizing_denumerizing(note_list: List[Note]) -> None:
-    """Test note numerization in notebook"""
+    """Test note numerization in notebook."""
     notebook = Notebook()
     notebook.add(note_list)
 

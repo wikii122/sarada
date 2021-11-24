@@ -1,12 +1,16 @@
 """
 Learning and generating data.
 """
+from __future__ import annotations
+
 import itertools
 import random
+
 from typing import Final, Iterable, List, Optional, Tuple
 
 import numpy as np
 import tensorflow
+
 from keras import Sequential, callbacks, layers
 from keras.engine.training import Model
 from loguru import logger

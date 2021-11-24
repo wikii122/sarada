@@ -1,6 +1,8 @@
 """
 Parse raw file content into workable streams.
 """
+from __future__ import annotations
+
 from typing import Generator, Iterable, Iterator, List, Optional
 
 from music21 import converter, instrument

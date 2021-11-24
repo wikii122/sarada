@@ -1,6 +1,8 @@
 """
 Hypothesis strategies definitions.
 """
+from __future__ import annotations
+
 from typing import Optional
 
 from hypothesis.strategies import composite, integers, none, sampled_from

@@ -14,6 +14,8 @@ disable = ["E501"]
 [tool.isort]
 profile = "black"
 line_length = 88
+lines_between_types = true
+add_imports = ["from __future__ import annotations"]
 
 [tool.mypy]
 allow_untyped_globals = false
