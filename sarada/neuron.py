@@ -34,9 +34,12 @@ class Neuron:
 
         Learning process is saved during the process.
         """
+        filepath = "checkpoint"
+
         inputs, outputs = self.prepare_dataset(dataset)
 
-        filepath = "checkpoint"
+        logger.debug("Initializong fitting checkpoint as {f}", f=filepath)
+
         checkpoint = callbacks.ModelCheckpoint(
             filepath, monitor="loss", verbose=0, save_best_only=True, mode="min"
         )
@@ -78,7 +81,7 @@ class Neuron:
         """
         Convert series to size appriopriate for the learning mechanism.
         """
-        logger.debug("Preparing data")
+        logger.debug("Preparing dataset")
         input_list = []
         output_list = []
 
@@ -98,7 +101,9 @@ class Neuron:
         """
         Generate sequence of requested length musing model.
         """
+        logger.info("Generating data")
         logger.debug("Attempting to generate series of {} values", length)
+
         inset = [random.random() for _ in itertools.repeat(None, self.input_length)]
 
         results: List[float] = []
