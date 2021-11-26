@@ -8,6 +8,8 @@ import sys
 from pathlib import Path
 from typing import Final, Generator, Iterable
 
+import typer
+
 from loguru import logger
 
 from sarada.logging import setup_logging
@@ -18,44 +20,38 @@ from sarada.parsing import create_stream, extract_notes
 supported_extensions: Final = [".abc"]
 window_size: Final = 100
 
+arg_music_dir = typer.Argument(..., help="Path to directory containing learnign data")
 
-def run() -> None:
+
+def main(music_dir: str = arg_music_dir) -> None:
     """
     Execute code for specified library.
     """
     setup_logging()
 
-    starting_path = (
-        "C:\\Users\\wikii\\AppData\\Local\\pypoetry\\Cache\\virtualenvs\\"
-        "sarada-h5EBRAqw-py3.9\\Lib\\site-packages\\music21\\corpus\\essenFolksong\\"
-    )
-    path = Path(starting_path)
+    path = Path(music_dir)
 
-    logger.info("Processing files in {path}", path=str(path))
-    notes = read_scores(path)
-    logger.info("Finished loading files")
+    try:
+        notes = read_scores(path)
+    except IOError as ex:
+        logger.error(str(ex))
+        sys.exit(1)
 
     if not notes:
         logger.error("No data was found")
         sys.exit(1)
 
-    logger.info("Starting processing data")
+    logger.info("Processing datasets")
 
     numeris = notes.numerize()
     series = numeris.make_series(window_size=window_size)
 
-    logger.info("Starting teaching model")
-
     model = Neuron(input_length=window_size, output_length=numeris.distinct_size)
     model.learn(series)
 
-    logger.info("Learning finished")
-
-    logger.info("Starting generating data")
     sequence = model.generate(100)
-
-    logger.info("Storing generated data")
     pitches = numeris.denumerize(sequence)
+
     store_sequence(pitches)
 
 
@@ -63,12 +59,16 @@ def read_scores(path: Path) -> Notebook:
     """
     Open file on given path and aggregate them in Notebook instance.
     """
+    logger.info("Processing files in {path}", path=str(path))
+
     scores = read_files(path)
     notes_source = extract_notes(scores)
 
     notes = Notebook()
     for note in notes_source:
         notes.add(note)
+
+    logger.info("Finished loading files")
 
     return notes
 
@@ -77,8 +77,9 @@ def store_sequence(pitches: Iterable[Pitch]) -> None:
     """
     Store sequence in midi file.
     """
-    stream = create_stream(pitches)
     path = "test_output.mid"
+    logger.info("storing sequence at {path}", path=path)
+    stream = create_stream(pitches)
     logger.debug("Saving file in {path}", path=path)
     stream.write("midi", fp=path)
 
@@ -99,4 +100,4 @@ def read_files(path: Path) -> Generator[str, None, None]:
 
 
 if __name__ == "__main__":
-    run()
+    typer.run(main)

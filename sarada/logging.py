@@ -1,3 +1,6 @@
+"""
+Setup for logging in the application.
+"""
 from __future__ import annotations
 
 import logging
