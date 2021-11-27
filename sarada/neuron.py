@@ -11,9 +11,9 @@ from typing import Final, Iterable, List, Optional, Tuple
 import numpy as np
 import tensorflow
 
-from keras import Sequential, callbacks, layers
 from keras.engine.training import Model
 from loguru import logger
+from tensorflow.keras import Sequential, callbacks, layers, optimizers
 
 from sarada.numeris import Series
 
@@ -56,19 +56,21 @@ class Neuron:
 
         logger.debug("Creating initial model")
         layer_list = [
-            layers.LSTM(256, input_shape=(self.input_length, 1), return_sequences=True),
-            layers.Dropout(0.3),
-            layers.LSTM(512, return_sequences=True),
-            layers.Dropout(0.3),
-            layers.LSTM(256),
+            layers.GRU(256, input_shape=(self.input_length, 1), return_sequences=True),
+            layers.Dropout(0.2),
+            layers.GRU(512, return_sequences=True),
+            layers.Dropout(0.2),
+            layers.GRU(256),
             layers.Dense(256),
-            layers.Dropout(0.3),
+            layers.Dropout(0.2),
             layers.Dense(self.output_length),
             layers.Activation("softmax"),
         ]
 
+        optimizer = optimizers.Adam(learning_rate=1e-5, clipnorm=0.5)
+
         model = Sequential(layers=layer_list)
-        model.compile(loss="categorical_crossentropy", optimizer="rmsprop")
+        model.compile(loss="categorical_crossentropy", optimizer=optimizer)
 
         return model
 
