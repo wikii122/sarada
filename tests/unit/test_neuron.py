@@ -1,6 +1,10 @@
 from __future__ import annotations
 
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import List
+
+import pytest
 
 from hypothesis import assume, given, settings
 from hypothesis.strategies import integers, lists
@@ -50,3 +54,30 @@ def test_generate_return_wanted_length(x: int, y: int, z: int) -> None:
     seq = neuron.generate(z)
 
     assert len(seq) == z
+
+
+def test_load_save() -> None:
+    neuron = Neuron(3, 4)
+
+    with TemporaryDirectory() as tmp_path:
+        path = Path(tmp_path) / "object"
+        neuron.save(path)
+
+        loaded = Neuron.load(path, 3, 4)
+
+        cmp = (
+            x == y
+            for x, y in zip(neuron.model.get_weights(), loaded.model.get_weights())
+        )
+        assert (c.all() for c in cmp)
+
+
+def test_check_save_size() -> None:
+    neuron = Neuron(3, 4)
+
+    with TemporaryDirectory() as tmp_path:
+        path = Path(tmp_path) / "object"
+        neuron.save(path)
+
+        with pytest.raises(ValueError):
+            Neuron.load(path, 2, 4)

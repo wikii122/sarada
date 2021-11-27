@@ -6,8 +6,10 @@ from __future__ import annotations
 import itertools
 import random
 
+from pathlib import Path
 from typing import Final, Iterable, List, Optional, Tuple
 
+import keras
 import numpy as np
 import tensorflow
 
@@ -23,10 +25,10 @@ class Neuron:
     Manages model, it's inputs and data generetion.
     """
 
-    def __init__(self, input_length: int, output_length: int):
+    def __init__(self, input_length: int, output_length: int, model: Model = None):
         self.input_length: Final = input_length
         self.output_length: Final = output_length
-        self._model: Optional[Model] = None
+        self._model: Optional[Model] = model
 
     def learn(self, dataset: Iterable[Series]) -> None:
         """
@@ -38,7 +40,7 @@ class Neuron:
 
         inputs, outputs = self.prepare_dataset(dataset)
 
-        logger.debug("Initializong fitting checkpoint as {f}", f=filepath)
+        logger.debug("Initializing fitting checkpoint as {f}", f=filepath)
 
         checkpoint = callbacks.ModelCheckpoint(
             filepath, monitor="loss", verbose=0, save_best_only=True, mode="min"
@@ -124,6 +126,39 @@ class Neuron:
                 results.append(normalized_output)
 
         return results
+
+    def save(self, path: Path) -> None:
+        """
+        Store current model on drive.
+        """
+        logger.info("Saving model at {path}", path=str(path))
+
+        self.model.save(path)
+
+    @classmethod
+    def load(cls, path: Path, input_length: int, output_length: int) -> Neuron:
+        """
+        Create new instance by loading model from disk.
+        """
+        model: Sequential = keras.models.load_model(path)
+
+        logger.info("Loading model from {path}", path=str(path))
+
+        input_shape = model.input_shape
+        output_shape = model.output_shape
+
+        logger.debug("Loaded model input size: {num}", num=input_shape)
+        logger.debug("Loaded model output size: {num}", num=output_shape)
+
+        if input_shape[1] != input_length or output_shape[1] != output_length:
+            raise ValueError(
+                f"Model has {input_shape[1]} inputs and {output_shape[1]} outputs. "
+                f"Expected {input_length} inputs and {output_length} outputs."
+            )
+
+        instance = cls(input_length, output_length, model=model)
+
+        return instance
 
     @property
     def model(self) -> Model:

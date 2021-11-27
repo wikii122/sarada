@@ -6,10 +6,11 @@ from __future__ import annotations
 import sys
 
 from pathlib import Path
-from typing import Final, Generator, Iterable
+from typing import Final, Generator, Iterable, Optional
 
 import typer
 
+from keras.engine.training import Model
 from loguru import logger
 
 from sarada.logging import setup_logging
@@ -21,9 +22,18 @@ supported_extensions: Final = [".abc"]
 window_size: Final = 100
 
 arg_music_dir = typer.Argument(..., help="Path to directory containing learnign data")
+arg_model_path = typer.Option(None, help="Path to store model")
+arg_load_model = typer.Option(
+    False,
+    help="If true model will be loaded from model_path",
+)
 
 
-def main(music_dir: str = arg_music_dir) -> None:
+def main(
+    music_dir: str = arg_music_dir,
+    model_path: Optional[Path] = arg_model_path,
+    load_model: bool = arg_load_model,
+) -> None:
     """
     Execute code for specified library.
     """
@@ -39,15 +49,28 @@ def main(music_dir: str = arg_music_dir) -> None:
 
     if not notes:
         logger.error("No data was found")
-        sys.exit(1)
+        raise typer.Exit(1)
 
     logger.info("Processing datasets")
 
     numeris = notes.numerize()
     series = numeris.make_series(window_size=window_size)
 
-    model = Neuron(input_length=window_size, output_length=numeris.distinct_size)
+    model: Model
+    if load_model and model_path:
+        model = Neuron.load(
+            model_path, input_length=window_size, output_length=numeris.distinct_size
+        )
+    elif load_model:
+        logger.error("No path provided to load model")
+        raise typer.Exit(1)
+    else:
+        model = Neuron(input_length=window_size, output_length=numeris.distinct_size)
+
     model.learn(series)
+
+    if model_path:
+        model.save(model_path)
 
     sequence = model.generate(100)
     pitches = numeris.denumerize(sequence)
