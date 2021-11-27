@@ -43,7 +43,7 @@ follow_imports = "skip"
 addopts = ["--doctest-modules"]
 
 [tool.poetry.scripts]
-sarada = "sarada.app:app"
+sarada = "sarada.console:app"
 
 [tool.poetry.dependencies]
 python = "^3.9,<3.10"
