@@ -27,12 +27,14 @@ arg_load_model = typer.Option(
     False,
     help="If true model will be loaded from model_path",
 )
+arg_epochs = typer.Option(100, help="Number of epochs to run")
 
 
 def main(
     music_dir: str = arg_music_dir,
     model_path: Optional[Path] = arg_model_path,
     load_model: bool = arg_load_model,
+    epochs: int = arg_epochs,
 ) -> None:
     """
     Execute code for specified library.
@@ -67,7 +69,7 @@ def main(
     else:
         model = Neuron(input_length=window_size, output_length=numeris.distinct_size)
 
-    model.learn(series)
+    model.learn(series, epochs=epochs)
 
     if model_path:
         model.save(model_path)

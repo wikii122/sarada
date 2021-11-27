@@ -30,7 +30,7 @@ class Neuron:
         self.output_length: Final = output_length
         self._model: Optional[Model] = model
 
-    def learn(self, dataset: Iterable[Series]) -> None:
+    def learn(self, dataset: Iterable[Series], epochs: int = 100) -> None:
         """
         Begin model learning with provided data.
 
@@ -48,7 +48,7 @@ class Neuron:
 
         logger.debug("Starting fitting model")
         self.model.fit(
-            inputs, outputs, epochs=200, batch_size=64, callbacks=[checkpoint]
+            inputs, outputs, epochs=epochs, batch_size=64, callbacks=[checkpoint]
         )
         logger.info("Model fitting finished")
 
