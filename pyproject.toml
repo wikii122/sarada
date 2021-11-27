@@ -42,6 +42,9 @@ follow_imports = "skip"
 [tool.pytest.ini_options]
 addopts = ["--doctest-modules"]
 
+[tool.poetry.scripts]
+sarada = "sarada.app:app"
+
 [tool.poetry.dependencies]
 python = "^3.9,<3.10"
 music21 = "^7.1.0"

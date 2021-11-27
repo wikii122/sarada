@@ -18,6 +18,8 @@ from sarada.neuron import Neuron
 from sarada.notebook import Notebook, Pitch
 from sarada.parsing import create_stream, extract_notes
 
+app = typer.Typer()
+
 supported_extensions: Final = [".abc"]
 window_size: Final = 100
 
@@ -30,6 +32,7 @@ arg_load_model = typer.Option(
 arg_epochs = typer.Option(100, help="Number of epochs to run")
 
 
+@app.command()
 def main(
     music_dir: str = arg_music_dir,
     model_path: Optional[Path] = arg_model_path,
@@ -125,4 +128,4 @@ def read_files(path: Path) -> Generator[str, None, None]:
 
 
 if __name__ == "__main__":
-    typer.run(main)
+    app()

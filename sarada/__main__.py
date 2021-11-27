@@ -3,9 +3,7 @@ Allow executing module as a command.
 """
 from __future__ import annotations
 
-import typer
-
-from sarada.app import main
+from sarada.app import app
 
 if __name__ == "__main__":
-    typer.run(main)
+    app()
