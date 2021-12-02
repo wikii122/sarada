@@ -115,3 +115,5 @@ dmypy.json
 
 checkpoint/
 **/*.mid
+model/
+*.pb
