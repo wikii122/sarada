@@ -6,7 +6,7 @@ from __future__ import annotations
 import sys
 
 from pathlib import Path
-from typing import Final, Generator, Iterable, Optional
+from typing import Final, Generator, Iterable
 
 import typer
 
@@ -24,7 +24,7 @@ supported_extensions: Final = [".abc"]
 window_size: Final = 100
 
 arg_music_dir = typer.Argument(..., help="Path to directory containing learnign data")
-arg_model_path = typer.Option(None, help="Path to store model")
+arg_model_path = typer.Argument(Path("model/"), help="Path to store model")
 arg_load_model = typer.Option(
     False,
     help="If true model will be loaded from model_path",
@@ -33,14 +33,14 @@ arg_epochs = typer.Option(100, help="Number of epochs to run")
 
 
 @app.command()
-def main(
-    music_dir: str = arg_music_dir,
-    model_path: Optional[Path] = arg_model_path,
+def fit(
+    music_dir: Path = arg_music_dir,
+    model_path: Path = arg_model_path,
     load_model: bool = arg_load_model,
     epochs: int = arg_epochs,
 ) -> None:
     """
-    Execute code for specified library.
+    Start fitting model with provided source directory.
     """
     setup_logging()
 
@@ -74,8 +74,36 @@ def main(
 
     model.learn(series, epochs=epochs)
 
-    if model_path:
-        model.save(model_path)
+    model.save(model_path)
+
+
+@app.command()
+def generate(
+    music_dir: Path = arg_music_dir, model_path: Path = arg_model_path
+) -> None:
+    """
+    Generate sequence from model.
+    """
+    setup_logging()
+
+    path = Path(music_dir)
+
+    try:
+        notes = read_scores(path)
+    except IOError as ex:
+        logger.error(str(ex))
+        sys.exit(1)
+
+    if not notes:
+        logger.error("No data was found")
+        raise typer.Exit(1)
+
+    logger.info("Processing datasets")
+    numeris = notes.numerize()
+
+    model = Neuron.load(
+        model_path, input_length=window_size, output_length=numeris.distinct_size
+    )
 
     sequence = model.generate(100)
     pitches = numeris.denumerize(sequence)
@@ -106,7 +134,7 @@ def store_sequence(pitches: Iterable[Pitch]) -> None:
     Store sequence in midi file.
     """
     path = "test_output.mid"
-    logger.info("storing sequence at {path}", path=path)
+    logger.info("Storing sequence at {path}", path=path)
     stream = create_stream(pitches)
     logger.debug("Saving file in {path}", path=path)
     stream.write("midi", fp=path)

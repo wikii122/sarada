@@ -27,14 +27,18 @@ Currently there is only one way to run command
 
 .. code-block:: bash
 
- $ sarada <PATH> --model-path model --epochs 100
+ $ sarada fit <PATH>  <model_path> --epochs 100
 
 Add option ``--load-model`` to iterate learning of existing model, otherwise it will be
 overwritten by new one.
 
+To generate new data please use:
+
+.. code-block:: bash
+
+ $ sarada generate <PATH>  <model_path>
+
 Note: CLI interface is being reworked, will change.
-
-
 
 License
 -------
