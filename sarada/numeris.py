@@ -6,9 +6,9 @@ from __future__ import annotations
 from typing import (
     Dict,
     Final,
-    Generator,
     Generic,
     Iterable,
+    Iterator,
     List,
     Mapping,
     NamedTuple,
@@ -45,7 +45,7 @@ class Numeris(Generic[T]):
 
         logger.debug("Found {size} distinct values", size=self.distinct_size)
 
-    def make_series(self, window_size: int = 100) -> Generator[Series, None, None]:
+    def make_series(self, window_size: int = 100) -> Iterator[Series]:
         """
         Generate series of overlapping datasets from data using crawling windows.
 

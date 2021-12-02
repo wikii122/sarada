@@ -3,7 +3,7 @@ Parse raw file content into workable streams.
 """
 from __future__ import annotations
 
-from typing import Generator, Iterable, Iterator, List, Optional
+from typing import Iterable, Iterator, List, Optional
 
 from music21 import converter, instrument
 from music21.note import GeneralNote, Note
@@ -15,7 +15,7 @@ from sarada.notebook import Pitch
 
 def extract_notes(
     scores: Iterable[str],
-) -> Generator[Iterator[GeneralNote], None, None]:
+) -> Iterator[Iterator[GeneralNote]]:
     """
     Extract notes from given file contents.
     """

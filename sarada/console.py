@@ -6,7 +6,7 @@ from __future__ import annotations
 import sys
 
 from pathlib import Path
-from typing import Final, Generator, Iterable
+from typing import Final, Iterable, Iterator
 
 import typer
 
@@ -140,7 +140,7 @@ def store_sequence(pitches: Iterable[Pitch]) -> None:
     stream.write("midi", fp=path)
 
 
-def read_files(path: Path) -> Generator[str, None, None]:
+def read_files(path: Path) -> Iterator[str]:
     """
     Iterate over content of musical files in provided directory.
     """
