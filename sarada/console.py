@@ -44,10 +44,8 @@ def fit(
     """
     setup_logging()
 
-    path = Path(music_dir)
-
     try:
-        notes = read_scores(path)
+        notes = read_scores(music_dir)
     except IOError as ex:
         logger.error(str(ex))
         sys.exit(1)
