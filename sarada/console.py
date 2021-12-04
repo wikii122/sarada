@@ -41,6 +41,10 @@ def prepare(music_dir: Path = arg_music_dir, model_path: Path = arg_model_path) 
     """
     setup_logging()
 
+    if model_path.exists():
+        logger.error("Provided path already exists, aborting preparing model")
+        raise typer.Exit(1)
+
     try:
         notes = read_scores(music_dir)
     except IOError as ex:
@@ -61,6 +65,8 @@ def prepare(music_dir: Path = arg_music_dir, model_path: Path = arg_model_path) 
 
     model = Neuron(input_length=window_size, output_length=numeris.distinct_size)
     model.save(model_path / "model")
+
+    logger.info("Initialized model at path {path}", path=str(model_path))
 
 
 @app.command()
