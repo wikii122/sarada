@@ -3,6 +3,8 @@ Run application from the command line.
 """
 from __future__ import annotations
 
+import json
+import os
 import sys
 
 from pathlib import Path
@@ -30,6 +32,35 @@ arg_load_model = typer.Option(
     help="If true model will be loaded from model_path",
 )
 arg_epochs = typer.Option(100, help="Number of epochs to run")
+
+
+@app.command()
+def prepare(music_dir: Path = arg_music_dir, model_path: Path = arg_model_path) -> None:
+    """
+    Initialize model directory and prepare data for it.
+    """
+    setup_logging()
+
+    try:
+        notes = read_scores(music_dir)
+    except IOError as ex:
+        logger.error(str(ex))
+        sys.exit(1)
+
+    if not notes:
+        logger.error("No data was found")
+        raise typer.Exit(1)
+
+    logger.info("Processing datasets")
+
+    numeris = notes.numerize()
+
+    os.mkdir(model_path)
+    with open(model_path / "data.json", "x", encoding="utf-8") as datafile:
+        json.dump(numeris.data, datafile)
+
+    model = Neuron(input_length=window_size, output_length=numeris.distinct_size)
+    model.save(model_path / "model")
 
 
 @app.command()

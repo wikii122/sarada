@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 from typing import List
 
 from hypothesis import assume, given
@@ -58,7 +60,7 @@ def test_numeris_series_generation_outputs_length(
 
 
 @given(lists(lists(text(max_size=3)), min_size=1, max_size=1), data())
-def test_numeris_series_generation_outputs_binary(
+def test_numeris_series_generation_outputs_shifts(
     texts: List[List[str]], data: SearchStrategy
 ) -> None:
     """
@@ -121,3 +123,12 @@ def test_numeris_normalize_normalizes(texts: List[List[str]]) -> None:
     data = numeris.mapping.keys()
 
     assert all(0 <= numeris.normalize_value(x) <= 1 for x in data)
+
+
+@given(lists(lists(text(max_size=3)), max_size=5))
+def test_numeris_series_mappings_recreatable_from_json(texts: List[List[str]]) -> None:
+    original = Numeris(texts)
+    jdata = json.dumps(original.data)
+    other = Numeris(json.loads(jdata))
+
+    assert original.mapping == other.mapping
