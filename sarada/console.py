@@ -8,16 +8,16 @@ import os
 import sys
 
 from pathlib import Path
-from typing import Final, Iterable, Iterator
+from typing import Final, Iterable, Iterator, List
 
 import typer
 
-from keras.engine.training import Model
 from loguru import logger
 
 from sarada.logging import setup_logging
 from sarada.neuron import Neuron
 from sarada.notebook import Notebook, Pitch
+from sarada.numeris import Numeris
 from sarada.parsing import create_stream, extract_notes
 
 app = typer.Typer()
@@ -71,9 +71,7 @@ def prepare(music_dir: Path = arg_music_dir, model_path: Path = arg_model_path) 
 
 @app.command()
 def fit(
-    music_dir: Path = arg_music_dir,
     model_path: Path = arg_model_path,
-    load_model: bool = arg_load_model,
     epochs: int = arg_epochs,
 ) -> None:
     """
@@ -81,61 +79,27 @@ def fit(
     """
     setup_logging()
 
-    try:
-        notes = read_scores(music_dir)
-    except IOError as ex:
-        logger.error(str(ex))
-        sys.exit(1)
-
-    if not notes:
-        logger.error("No data was found")
-        raise typer.Exit(1)
-
-    logger.info("Processing datasets")
-
-    numeris = notes.numerize()
+    numeris = load_data(model_path)
     series = numeris.make_series(window_size=window_size)
 
-    model: Model
-    if load_model and model_path:
-        model = Neuron.load(
-            model_path, input_length=window_size, output_length=numeris.distinct_size
-        )
-    elif load_model:
-        logger.error("No path provided to load model")
-        raise typer.Exit(1)
-    else:
-        model = Neuron(input_length=window_size, output_length=numeris.distinct_size)
+    model = Neuron.load(
+        model_path / "model",
+        input_length=window_size,
+        output_length=numeris.distinct_size,
+    )
 
     model.learn(series, epochs=epochs)
-
-    model.save(model_path)
+    model.save(model_path / "model")
 
 
 @app.command()
-def generate(
-    music_dir: Path = arg_music_dir, model_path: Path = arg_model_path
-) -> None:
+def generate(model_path: Path = arg_model_path) -> None:
     """
     Generate sequence from model.
     """
     setup_logging()
 
-    path = Path(music_dir)
-
-    try:
-        notes = read_scores(path)
-    except IOError as ex:
-        logger.error(str(ex))
-        sys.exit(1)
-
-    if not notes:
-        logger.error("No data was found")
-        raise typer.Exit(1)
-
-    logger.info("Processing datasets")
-    numeris = notes.numerize()
-
+    numeris = load_data(model_path)
     model = Neuron.load(
         model_path, input_length=window_size, output_length=numeris.distinct_size
     )
@@ -173,6 +137,20 @@ def store_sequence(pitches: Iterable[Pitch]) -> None:
     stream = create_stream(pitches)
     logger.debug("Saving file in {path}", path=path)
     stream.write("midi", fp=path)
+
+
+def load_data(model_path: Path) -> Numeris[Pitch]:
+    logger.info("Loading datasets from {path}", path=str(model_path))
+    try:
+        with open(model_path / "data.json", "r", encoding="utf-8") as datafile:
+            data: List[List[Pitch]] = json.load(datafile)
+    except IOError as ex:
+        logger.error(str(ex))
+        raise typer.Exit(1)
+
+    numeris = Numeris(data)
+
+    return numeris
 
 
 def read_files(path: Path) -> Iterator[str]:
