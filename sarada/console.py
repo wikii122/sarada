@@ -80,14 +80,13 @@ def fit(
     setup_logging()
 
     numeris = load_data(model_path)
-    series = numeris.make_series(window_size=window_size)
-
     model = Neuron.load(
         model_path / "model",
         input_length=window_size,
         output_length=numeris.distinct_size,
     )
 
+    series = numeris.make_series(window_size=window_size)
     model.learn(series, epochs=epochs)
     model.save(model_path / "model")
 
