@@ -32,10 +32,17 @@ arg_load_model = typer.Option(
     help="If true model will be loaded from model_path",
 )
 arg_epochs = typer.Option(100, help="Number of epochs to run")
+arg_recursive = typer.Option(
+    False, "--recursive", "-r", help="Search directories recursively"
+)
 
 
 @app.command()
-def prepare(music_dir: Path = arg_music_dir, model_path: Path = arg_model_path) -> None:
+def prepare(
+    music_dir: Path = arg_music_dir,
+    model_path: Path = arg_model_path,
+    recursive: bool = arg_recursive,
+) -> None:
     """
     Initialize model directory and prepare data for it.
     """
@@ -46,7 +53,7 @@ def prepare(music_dir: Path = arg_music_dir, model_path: Path = arg_model_path) 
         raise typer.Exit(1)
 
     try:
-        notes = read_scores(music_dir)
+        notes = read_scores(music_dir, recursive)
     except IOError as ex:
         logger.error(str(ex))
         sys.exit(1)
@@ -109,13 +116,13 @@ def generate(model_path: Path = arg_model_path) -> None:
     store_sequence(pitches)
 
 
-def read_scores(path: Path) -> Notebook:
+def read_scores(path: Path, recursive: bool = False) -> Notebook:
     """
     Open file on given path and aggregate them in Notebook instance.
     """
     logger.info("Processing files in {path}", path=str(path))
 
-    scores = read_files(path)
+    scores = read_files(path, recursive)
     notes_source = extract_notes(scores)
 
     notes = Notebook()
@@ -152,15 +159,18 @@ def load_data(model_path: Path) -> Numeris[Pitch]:
     return numeris
 
 
-def read_files(path: Path) -> Iterator[str]:
+def read_files(path: Path, recursive: bool) -> Iterator[str]:
     """
     Iterate over content of musical files in provided directory.
     """
     for filepath in path.iterdir():
-        logger.debug("Opening file {path}", path=filepath)
         if filepath.is_file() and filepath.suffix in supported_extensions:
+            logger.debug("Opening file {path}", path=filepath)
             with open(filepath, encoding="utf-8") as audio_file:
                 yield audio_file.read()
+        elif recursive and filepath.is_dir():
+            logger.debug("Searching {path}", path=filepath)
+            yield from read_files(filepath, recursive=True)
         else:
             logger.debug(
                 "File {name} omitted due to unsupported extension", name=filepath
