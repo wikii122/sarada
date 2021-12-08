@@ -7,8 +7,8 @@ from typing import List
 
 from hypothesis import given
 from hypothesis.strategies import lists
-from music21.note import Note
 
+from sarada import music21
 from sarada.notebook import Notebook
 
 from .strategies import notes
@@ -22,7 +22,7 @@ def test_notebook_empty() -> None:
 
 
 @given(lists(notes()))
-def test_notebook_add_note(note_list: List[Note]) -> None:
+def test_notebook_add_note(note_list: List[music21.Note]) -> None:
     """Test adding notes to categorizer."""
     notebook = Notebook()
     notebook.add(note_list)
@@ -31,7 +31,7 @@ def test_notebook_add_note(note_list: List[Note]) -> None:
 
 
 @given(lists(notes()))
-def test_notebook_numerizing_denumerizing(note_list: List[Note]) -> None:
+def test_notebook_numerizing_denumerizing(note_list: List[music21.Note]) -> None:
     """Test note numerization in notebook."""
     notebook = Notebook()
     notebook.add(note_list)

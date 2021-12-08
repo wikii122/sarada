@@ -3,16 +3,16 @@ Categorize and normalize notes.
 """
 from __future__ import annotations
 
-from typing import Iterable, List, NewType, cast
+from typing import Iterable, List, NewType
 
 from loguru import logger
-from music21.note import GeneralNote, Note
 
+from sarada import music21
 from sarada.numeris import Numeris
 
 Key = NewType("Key", int)
 Pitch = NewType("Pitch", str)
-Score = Iterable[GeneralNote]
+Score = Iterable[music21.GeneralNote]
 
 
 class Notebook:
@@ -33,8 +33,8 @@ class Notebook:
         noteset: List[Pitch] = []
 
         for note in notes:
-            if isinstance(note, Note):
-                pitch: Pitch = cast(Pitch, str(note.pitch))
+            if isinstance(note, music21.Note):
+                pitch: Pitch = Pitch(str(note.pitch))
             else:
                 raise NotImplementedError(
                     f"Support for note type { type(note) } not implemented"

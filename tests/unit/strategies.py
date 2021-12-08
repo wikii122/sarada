@@ -6,8 +6,8 @@ from __future__ import annotations
 from typing import Optional
 
 from hypothesis.strategies import composite, integers, none, sampled_from
-from music21.note import Note
 
+from sarada import music21
 from sarada.notebook import Pitch
 
 
@@ -26,6 +26,6 @@ def pitches(draw) -> Pitch:  # type: ignore
 
 
 @composite
-def notes(draw) -> Note:  # type: ignore
+def notes(draw) -> music21.Note:  # type: ignore
     pitch: Pitch = draw(pitches())
-    return Note(pitch)
+    return music21.Note(pitch)

@@ -4,9 +4,8 @@ from typing import List
 
 from hypothesis import given
 from hypothesis.strategies import lists
-from music21.chord import Chord
-from music21.note import Note
 
+from sarada import music21
 from sarada.notebook import Pitch
 from sarada.parsing import create_stream, extract_notes
 from tests.unit.strategies import pitches
@@ -26,7 +25,7 @@ def test_extract_note_pitch() -> None:
     notes = next(extract_notes([abc]))
     note = next(notes)
 
-    assert isinstance(note, Note)
+    assert isinstance(note, music21.Note)
     assert note.pitch.step == "C"
     assert note.pitch.octave == 3
 
@@ -47,7 +46,7 @@ def test_extract_note_chords() -> None:
 
     chord = next(notes)
 
-    assert isinstance(chord, Chord)
+    assert isinstance(chord, music21.Chord)
     assert len(chord.notes) == 4
     assert chord.figure == "Gm7"  # type: ignore
 
@@ -63,7 +62,7 @@ def test_create_stream_length_and_values(pitches: List[Pitch]) -> None:
 @given(lists(pitches()))
 def test_create_stream_notes_offsets(pitches: List[Pitch]) -> None:
     stream = create_stream(pitches)
-    prv: Note
-    nxt: Note
+    prv: music21.Note
+    nxt: music21.Note
     for prv, nxt in zip(stream.notes[:-1], stream.notes[1:]):
         assert nxt.offset - prv.offset == 0.5

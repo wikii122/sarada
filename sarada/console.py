@@ -146,6 +146,7 @@ def store_sequence(pitches: Iterable[Pitch]) -> None:
 
 
 def load_data(model_path: Path) -> Numeris[Pitch]:
+    """Parse music files at path given."""
     logger.info("Loading datasets from {path}", path=str(model_path))
     try:
         with open(model_path / "data.json", "r", encoding="utf-8") as datafile:
