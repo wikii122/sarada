@@ -32,8 +32,8 @@ class Numeris(Generic[T]):
 
     def __init__(self, data: List[List[T]]):
         self.data: Final[Dataset[T]] = tuple(tuple(d) for d in data)
-        mapping: Dict[T, int] = {}
-        reverse_mapping: Dict[int, T] = {}
+        mapping: Final[Dict[T, int]] = {}
+        reverse_mapping: Final[Dict[int, T]] = {}
 
         for dataset in self.data:
             for key in dataset:
