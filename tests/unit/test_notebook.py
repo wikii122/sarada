@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from typing import List
 
-from hypothesis import given
+from hypothesis import HealthCheck, given, settings
 from hypothesis.strategies import lists
 
 from sarada import music21
@@ -21,7 +21,9 @@ def test_notebook_empty() -> None:
     assert not notebook
 
 
+# Supressing health check because drawing multiple values for each list item triggers it
 @given(lists(notes()))
+@settings(suppress_health_check=(HealthCheck.too_slow, HealthCheck.filter_too_much))
 def test_notebook_add_note(note_list: List[music21.Note]) -> None:
     """Test adding notes to categorizer."""
     notebook = Notebook()
@@ -31,6 +33,7 @@ def test_notebook_add_note(note_list: List[music21.Note]) -> None:
 
 
 @given(lists(notes()))
+@settings(suppress_health_check=(HealthCheck.too_slow, HealthCheck.filter_too_much))
 def test_notebook_numerizing_denumerizing(note_list: List[music21.Note]) -> None:
     """Test note numerization in notebook."""
     notebook = Notebook()

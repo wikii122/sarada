@@ -3,6 +3,7 @@ Parse raw file content into workable streams.
 """
 from __future__ import annotations
 
+from functools import singledispatch
 from pathlib import Path
 from typing import Final, Iterable, Iterator, List, Optional
 
@@ -10,7 +11,7 @@ from loguru import logger
 from music21 import converter, instrument
 
 from sarada import music21
-from sarada.notebook import Notebook, Pitch
+from sarada.notebook import Chord, Musical, Note, Notebook
 
 supported_extensions: Final = [".abc"]
 
@@ -35,18 +36,33 @@ def extract_notes(
             yield (note for note in notes)
 
 
-def create_stream(pitches: Iterable[Pitch]) -> music21.Stream:
+def create_stream(pitches: Iterable[Musical]) -> music21.Stream:
     """
     Create stream that may be converted to actual music from pitch list.
     """
-    notes: List[music21.Note] = []
+    notes: List[music21.GeneralNote] = []
     for idx, pitch in enumerate(pitches):
-        note = music21.Note(pitch)
+        note = make_note(pitch)
         note.offset = 0.5 * idx
         note.storedInstrument = instrument.Piano()
         notes.append(note)
 
     return music21.Stream(notes)
+
+
+@singledispatch
+def make_note(musical: Musical) -> music21.GeneralNote:
+    raise RuntimeError(f"Dispatch failed for {musical}")
+
+
+@make_note.register
+def make_simple_note(note: Note) -> music21.Note:
+    return Note(note.pitch)
+
+
+@make_note.register
+def make_chord(chord: Chord) -> music21.Chord:
+    return Chord(chord.pitch)
 
 
 def read_scores(path: Path, recursive: bool = False) -> Notebook:
@@ -85,7 +101,7 @@ def read_files(path: Path, recursive: bool) -> Iterator[str]:
             )
 
 
-def store_score(pitches: Iterable[Pitch]) -> None:
+def store_score(pitches: Iterable[Musical]) -> None:
     """
     Store sequence in midi file.
     """

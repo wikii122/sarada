@@ -17,8 +17,7 @@ Supported file formats are:
 Current attemp is to apply text prediction mechanics on the series of notes to predict
 the next note.
 
-Note: At the moment only simple notes (corresponding to music21.notes.Note) are
-supported.
+Note: Supported notes are music21.note.Note and music21.chord.Chord.
 
 Usage
 -----
@@ -42,8 +41,6 @@ To generate new data please try:
 .. code-block:: bash
 
  $ sarada generate <model_path>
-
-Note: CLI interface is being reworked, will change.
 
 License
 -------
