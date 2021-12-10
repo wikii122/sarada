@@ -10,6 +10,7 @@ include = ["src", "tests"]
 [tool.pylint.basic]
 const-naming-style = "snake_case"
 disable = ["E501"]
+good-names = ["e", "i", "ex"]
 
 [tool.isort]
 profile = "black"

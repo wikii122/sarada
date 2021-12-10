@@ -8,29 +8,28 @@ from pathlib import Path
 from typing import Final, Iterable, Iterator, List, Optional
 
 from loguru import logger
-from music21 import converter, instrument
+from music21 import converter, exceptions21, instrument
 
 from sarada import music21
 from sarada.notebook import Chord, Musical, Note, Notebook
 
-supported_extensions: Final = [".abc"]
+supported_extensions: Final = [".abc", ".mxl", ".rntxt", ".xml", ".musicxml", ".krn"]
 
 
 def extract_notes(
-    scores: Iterable[str],
+    scores: Iterable[music21.Stream],
 ) -> Iterator[Iterator[music21.GeneralNote]]:
     """
     Extract notes from given file contents.
     """
-    for raw in scores:
-        stream: music21.Stream = converter.parseData(raw)
-        score = instrument.partitionByInstrument(stream)
+    for score in scores:
+        partition = instrument.partitionByInstrument(score)
 
         notes: Optional[music21.StreamIterator]
-        if score:
-            notes = score.parts[0].recurse()
+        if partition:
+            notes = partition.parts[0].recurse()
         else:
-            notes = stream.flat.notes
+            notes = score.flat.notes
 
         if notes:
             yield (note for note in notes)
@@ -83,15 +82,24 @@ def read_scores(path: Path, recursive: bool = False) -> Notebook:
     return notes
 
 
-def read_files(path: Path, recursive: bool) -> Iterator[str]:
+def read_files(path: Path, recursive: bool) -> Iterator[music21.Stream]:
     """
     Iterate over content of musical files in provided directory.
     """
     for filepath in path.iterdir():
         if filepath.is_file() and filepath.suffix in supported_extensions:
             logger.debug("Opening file {path}", path=filepath)
-            with open(filepath, encoding="utf-8") as audio_file:
-                yield audio_file.read()
+            try:
+                score: music21.Stream = converter.parseFile(filepath)
+            except IOError as e:
+                logger.warning(
+                    "Error opening file {path}: {e}", path=str(path), e=str(e)
+                )
+                continue
+            except exceptions21.Music21Exception:
+                logger.warning("Could not parse file {path}", path=str(path))
+                continue
+            yield score
         elif recursive and filepath.is_dir():
             logger.debug("Searching {path}", path=filepath)
             yield from read_files(filepath, recursive=True)
