@@ -4,6 +4,7 @@ from typing import List
 
 from hypothesis import HealthCheck, given, settings
 from hypothesis.strategies import lists
+from music21 import converter
 
 from sarada import music21
 from sarada.notebook import Musical, Note
@@ -22,7 +23,8 @@ def test_extract_note_pitch() -> None:
     C, D, E, F, | G, A, B, C
     """
 
-    notes = next(extract_notes([abc]))
+    musics = converter.parseData(abc)
+    notes = next(extract_notes([musics]))
     note = next(notes)
 
     assert isinstance(note, music21.Note)
@@ -39,8 +41,8 @@ def test_extract_note_chords() -> None:
     K:C
     "A"A "Gm7"D "Bb"F "F#"A |]
     """
-
-    notes = next(extract_notes([abc]))
+    musics = converter.parseData(abc)
+    notes = next(extract_notes([musics]))
     next(notes)  # Skip first "A
     next(notes)  # Skip seconda "A
 
