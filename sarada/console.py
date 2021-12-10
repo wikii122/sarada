@@ -66,7 +66,7 @@ def prepare(
     numeris = notes.numerize()
 
     os.mkdir(model_path)
-    with open(model_path / "data.dat", "wb", encoding="utf-8") as datafile:
+    with open(model_path / "data.dat", "wb") as datafile:
         pickle.dump(numeris, datafile)
 
     model = Neuron(input_length=window_size, output_length=numeris.distinct_size)
@@ -119,7 +119,7 @@ def load_data(model_path: Path) -> Numeris[Musical]:
     """Parse music files at path given."""
     logger.info("Loading datasets from {path}", path=str(model_path))
     try:
-        with open(model_path / "data.dat", "rb", encoding="utf-8") as datafile:
+        with open(model_path / "data.dat", "rb") as datafile:
             numeris: Numeris[Musical] = pickle.load(datafile)
     except IOError as ex:
         logger.error(str(ex))
