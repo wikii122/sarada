@@ -106,7 +106,9 @@ def generate(model_path: Path = arg_model_path) -> None:
 
     numeris = load_data(model_path)
     model = Neuron.load(
-        model_path, input_length=window_size, output_length=numeris.distinct_size
+        model_path / "model",
+        input_length=window_size,
+        output_length=numeris.distinct_size,
     )
 
     sequence = model.generate(100)
