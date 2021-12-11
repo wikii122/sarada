@@ -50,22 +50,9 @@ class Notebook:
             elif isinstance(note, music21.Chord):
                 pitches = tuple(Pitch(str(n.pitch)) for n in note.notes)
                 musical = Chord(pitches)
-            elif isinstance(
-                note,
-                (
-                    music21.Instrument,
-                    music21.LayoutBase,
-                    music21.MiscTandem,
-                    music21.SpineComment,
-                ),
-            ):
+            else:
                 logger.debug("Ignoring note {note}", note=str(note))
                 continue
-            else:
-                logger.warning(
-                    "Ignoring score because of unsupported note: {note}", note=str(note)
-                )
-                return
 
             noteset.append(musical)
 
