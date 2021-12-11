@@ -2,14 +2,14 @@ from __future__ import annotations
 
 from typing import List
 
-from hypothesis import HealthCheck, given, settings
+from hypothesis import given
 from hypothesis.strategies import lists
 from music21 import converter
 
 from sarada import music21
 from sarada.notebook import Musical, Note
 from sarada.parsing import create_stream, extract_notes
-from tests.unit.strategies import pitches
+from tests.unit.strategies import chords, notes
 
 
 def test_extract_note_pitch() -> None:
@@ -54,8 +54,7 @@ def test_extract_note_chords() -> None:
 
 
 # Supressing health check because drawing multiple values for each list item triggers it
-@given(lists(pitches()))
-@settings(suppress_health_check=(HealthCheck.too_slow, HealthCheck.filter_too_much))
+@given(lists(notes() | chords()))
 def test_create_stream_length_and_values(musicals: List[Musical]) -> None:
     stream = create_stream(musicals)
     assert len(stream.notes) == len(musicals)
@@ -66,9 +65,9 @@ def test_create_stream_length_and_values(musicals: List[Musical]) -> None:
             assert tuple(str(n.pitch) for n in note.notes) == musical.pitch
 
 
-@given(lists(pitches()))
-@settings(suppress_health_check=(HealthCheck.too_slow, HealthCheck.filter_too_much))
+@given(lists(notes() | chords()))
 def test_create_stream_notes_offsets(pitches: List[Musical]) -> None:
+    print(pitches)
     stream = create_stream(pitches)
     prv: music21.Note
     nxt: music21.Note

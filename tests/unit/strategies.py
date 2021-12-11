@@ -19,30 +19,34 @@ def raw_pitches(draw) -> Pitch:  # type: ignore
     octave: Optional[int] = draw(integers(min_value=1, max_value=8) | none())
 
     if octave:
-        pitch = Pitch(f"{name}{accidental}{octave}")
+        pitch = f"{name}{accidental}{octave}"
     else:
-        pitch = Pitch(f"{name}{accidental}")
+        pitch = f"{name}{accidental}"
 
-    return pitch
-
-
-@composite
-def pitches(draw) -> music21.Musical:  # type: ignore
-    length = draw(integers(min_value=1, max_value=4))
-    if length == 1:
-        pitch = draw(pitches())
-        return Note(pitch)
-
-    pitch = [draw(pitches()) for _ in repeat(None, length)]
-    return Chord(pitch)
+    return Pitch(pitch)
 
 
 @composite
 def notes(draw) -> music21.Note:  # type: ignore
+    pitch = draw(raw_pitches())
+
+    return Note(pitch)
+
+
+@composite
+def chords(draw) -> music21.Chord:  # type: ignore
+    length = draw(integers(min_value=2, max_value=4))
+    pitch = tuple(draw(raw_pitches()) for _ in repeat(None, length))
+
+    return Chord(pitch)
+
+
+@composite
+def m21notes(draw) -> music21.Note:  # type: ignore
     length = draw(integers(min_value=1, max_value=4))
     if length == 1:
-        pitch = draw(pitches())
+        pitch = draw(raw_pitches())
         return music21.Note(pitch)
 
-    pitch = [draw(pitches()) for _ in repeat(None, length)]
+    pitch = [draw(raw_pitches()) for _ in repeat(None, length)]
     return music21.Chord(pitch)
