@@ -13,6 +13,12 @@ existing model files.
 Supported file formats are:
 
 - abc
+- mxl
+- rntxt
+- xml
+- musicxml
+- krn
+- midi
 
 Current attemp is to apply text prediction mechanics on the series of notes to predict
 the next note.

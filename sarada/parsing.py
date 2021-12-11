@@ -13,7 +13,15 @@ from music21 import converter, exceptions21, instrument
 from sarada import music21
 from sarada.notebook import Chord, Musical, Note, Notebook
 
-supported_extensions: Final = [".abc", ".mxl", ".rntxt", ".xml", ".musicxml", ".krn"]
+supported_extensions: Final = [
+    ".abc",
+    ".mxl",
+    ".rntxt",
+    ".xml",
+    ".musicxml",
+    ".krn",
+    ".midi",
+]
 
 
 def extract_notes(
