@@ -64,12 +64,12 @@ def make_note(musical: Musical) -> music21.GeneralNote:
 
 @make_note.register
 def make_simple_note(note: Note) -> music21.Note:
-    return Note(note.pitch)
+    return music21.Note(note.pitch)
 
 
 @make_note.register
 def make_chord(chord: Chord) -> music21.Chord:
-    return Chord(chord.pitch)
+    return music21.Chord(chord.pitch)
 
 
 def read_scores(path: Path, recursive: bool = False) -> Notebook:
