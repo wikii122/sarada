@@ -15,6 +15,7 @@ import tensorflow
 
 from keras.engine.training import Model
 from loguru import logger
+from numpy.typing import NDArray
 from tensorflow.keras import Sequential, callbacks, layers, optimizers
 
 from sarada.numeris import Series
@@ -81,7 +82,7 @@ class Neuron:
 
     def prepare_dataset(
         self, dataset: Iterable[Series]
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
         """
         Convert series to size appriopriate for the learning mechanism.
         """
