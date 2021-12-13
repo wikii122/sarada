@@ -39,10 +39,31 @@ jobs:
           poetry run pytest --verbose --junitxml=test-results/junit.xml $TEST_FILES
     - store_test_results:
         path: test-results
-
+  build:
+    docker:
+    - image: cimg/python:3.9
+    steps:
+    - checkout
+    - python/install-packages:
+        pkg-manager: poetry
+    - run:
+        name: Build
+        command: poetry build
+    - store_artifacts:
+      path: "dist/"
 workflows:
   test:
     jobs:
     - lint
     - static-analysis
     - test
+  build:
+    jobs:
+    - build:
+      requires:
+      - test
+      filter:
+        branches:
+          ignore: /.*/
+        tags:
+          only: /.*/
