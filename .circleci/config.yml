@@ -37,6 +37,8 @@ jobs:
           TEST_FILES=$(circleci tests glob "**/*.py" | circleci tests split --split-by=timings)
           mkdir -p test-results
           poetry run pytest --verbose --junitxml=test-results/junit.xml $TEST_FILES
+    - store_test_results:
+        path: test-results
 
 workflows:
   test:
