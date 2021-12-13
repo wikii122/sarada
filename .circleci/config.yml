@@ -23,6 +23,7 @@ jobs:
         name: Run mypy
         command: poetry run mypy sarada tests
   test:
+    parallelism: 4
     docker:
     - image: cimg/python:3.9
     steps:
@@ -31,7 +32,11 @@ jobs:
         pkg-manager: poetry
     - run:
         name: Run tests
-        command: poetry run pytest
+        command: |
+          set -e
+          TEST_FILES=$(circleci tests glob "**/*.py" | circleci tests split --split-by=timings)
+          mkdir -p test-results
+          poetry run pytest --verbose --junitxml=test-results/junit.xml $TEST_FILES
 
 workflows:
   test:
