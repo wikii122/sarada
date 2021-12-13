@@ -2,7 +2,7 @@ version: 2.1
 orbs:
   python: circleci/python@1.2
 jobs:
-  analysis:
+  lint:
     docker:
     - image: cimg/python:3.9
     steps:
@@ -12,6 +12,13 @@ jobs:
     - run:
         name: Run linters
         command: poetry run prospector . -s veryhigh
+  static-analysis:
+    docker:
+    - image: cimg/python:3.9
+    steps:
+    - checkout
+    - python/install-packages:
+        pkg-manager: poetry
     - run:
         name: Run mypy
         command: poetry run mypy sarada tests
@@ -26,9 +33,9 @@ jobs:
         name: Run tests
         command: poetry run pytest
 
-
 workflows:
   test:
     jobs:
-    - analysis
+    - lint
+    - static-analysis
     - test

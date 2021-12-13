@@ -1,6 +1,8 @@
 Sarada
 ======
 
+|made-with-python| |CircleCI| |MIT license|
+
 *PoC* aimed in an attempt to generate music.
 
 What is it?
@@ -52,3 +54,15 @@ License
 -------
 
 See `LICENSE <https://github.com/wikii122/sarada/LICENSE>`__.
+
+
+.. |made-with-python| image:: https://img.shields.io/badge/Made%20with-Python-1f425f.svg
+    :target: https://www.python.org/
+
+
+.. |CircleCI| image:: https://circleci.com/gh/wikii122/sarada/tree/main.svg?style=shield
+    :target: https://circleci.com/gh/wikii122/sarada/tree/main
+
+
+.. |MIT license| image:: https://img.shields.io/badge/License-MIT-blue.svg
+    :target: https://lbesson.mit-license.org/
