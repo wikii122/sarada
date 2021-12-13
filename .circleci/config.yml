@@ -50,7 +50,7 @@ jobs:
         name: Build
         command: poetry build
     - store_artifacts:
-      path: "dist/"
+        path: "dist/"
 workflows:
   test:
     jobs:
@@ -59,11 +59,22 @@ workflows:
     - test
   build:
     jobs:
+    - lint:
+        filters: &filters
+          branches:
+            ignore: /.*/
+          tags:
+            only: /.*/
+    - static-analysis:
+        filters:
+          <<: *filters
+    - test:
+        filters:
+          <<: *filters
     - build:
-      requires:
-      - test
-      filter:
-        branches:
-          ignore: /.*/
-        tags:
-          only: /.*/
+        requires:
+        - lint
+        - test
+        - static-analysis
+        filters:
+          <<: *filters
