@@ -14,6 +14,7 @@ import typer
 
 from loguru import logger
 
+from sarada.console import config as conf
 from sarada.logging import setup_logging
 from sarada.neuron import Neuron
 from sarada.notebook import Musical
@@ -72,6 +73,9 @@ def prepare(
     model = Neuron(input_length=window_size, output_length=numeris.distinct_size)
     model.save(model_path / "model")
 
+    config: conf.ConfigData = {"iterations": 0}
+    conf.store(config, model_path)
+
     logger.info("Initialized model at path {path}", path=str(model_path))
 
 
@@ -84,6 +88,7 @@ def fit(
     Start fitting model with provided source directory.
     """
     setup_logging()
+    config = conf.read(model_path)
 
     numeris = load_data(model_path)
     model = Neuron.load(
@@ -95,6 +100,9 @@ def fit(
     series = numeris.make_series(window_size=window_size)
     model.learn(series, epochs=epochs)
     model.save(model_path / "model")
+
+    config["iterations"] += epochs
+    conf.store(config, model_path)
 
 
 @app.command()
