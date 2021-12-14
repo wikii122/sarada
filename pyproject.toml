@@ -42,6 +42,7 @@ follow_imports = "skip"
 
 [tool.pytest.ini_options]
 addopts = ["--doctest-modules"]
+junit_family = "xunit1"
 
 [tool.poetry.scripts]
 sarada = "sarada.console:app"
