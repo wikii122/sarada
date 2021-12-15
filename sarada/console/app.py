@@ -23,8 +23,6 @@ from sarada.parsing import read_scores, store_score
 
 app: Final = typer.Typer()
 
-window_size: Final = 100
-
 arg_music_dir = typer.Argument(..., help="Path to directory containing learnign data")
 arg_model_path = typer.Argument(Path("model/"), help="Path to store model")
 arg_load_model = typer.Option(
@@ -35,6 +33,7 @@ arg_epochs = typer.Option(100, help="Number of epochs to run")
 arg_recursive = typer.Option(
     False, "--recursive", "-r", help="Search directories recursively"
 )
+arg_windows_size = typer.Option(40, help="Size fo window iterating over datasets")
 
 
 @app.command()
@@ -42,11 +41,16 @@ def prepare(
     music_dir: Path = arg_music_dir,
     model_path: Path = arg_model_path,
     recursive: bool = arg_recursive,
+    window_size: int = arg_windows_size,
 ) -> None:
     """
     Initialize model directory and prepare data for it.
     """
     setup_logging()
+
+    if window_size <= 0:
+        logger.error("Window size must be positive")
+        raise typer.Exit(1)
 
     if model_path.exists():
         logger.error("Provided path already exists, aborting preparing model")
@@ -73,7 +77,7 @@ def prepare(
     model = Neuron(input_length=window_size, output_length=numeris.distinct_size)
     model.save(model_path / "model")
 
-    config: conf.ConfigData = {"iterations": 0}
+    config: conf.ConfigData = {"iterations": 0, "window_size": window_size}
     conf.store(config, model_path)
 
     logger.info("Initialized model at path {path}", path=str(model_path))
@@ -88,7 +92,8 @@ def fit(
     Start fitting model with provided source directory.
     """
     setup_logging()
-    config = conf.read(model_path)
+    config: Final = conf.read(model_path)
+    window_size: Final[int] = config["window_size"]
 
     numeris = load_data(model_path)
     model = Neuron.load(
@@ -111,6 +116,8 @@ def generate(model_path: Path = arg_model_path) -> None:
     Generate sequence from model.
     """
     setup_logging()
+    config: Final = conf.read(model_path)
+    window_size: Final[int] = config["window_size"]
 
     numeris = load_data(model_path)
     model = Neuron.load(

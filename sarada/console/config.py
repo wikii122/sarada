@@ -13,6 +13,7 @@ filename = "config.json"
 
 class ConfigData(TypedDict):
     iterations: int
+    window_size: int
 
 
 def read(path: Path) -> ConfigData:
