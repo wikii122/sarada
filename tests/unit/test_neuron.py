@@ -14,7 +14,7 @@ from sarada.numeris import Numeris
 
 
 @given(lists(lists(integers(), min_size=11), min_size=1))
-def test__prepare_dataset_keeps_data_length(texts: List[List[int]]) -> None:
+def test_prepare_dataset_keeps_data_length(texts: List[List[int]]) -> None:
     windows_size = 10
 
     numeris = Numeris(texts)
