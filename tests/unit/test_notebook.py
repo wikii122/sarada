@@ -40,3 +40,31 @@ def test_notebook_numerizing_denumerizing(note_list: List[music21.Note]) -> None
     numeris = notebook.numerize()
 
     assert list(numeris.data[0]) == notebook.notes[0]
+
+
+@given(lists(lists(m21notes()), max_size=5))
+def test_notebook_comparison_equals(note_list: List[List[music21.Note]]) -> None:
+    """Test comparisin of notebooks."""
+    notebook1 = Notebook()
+    for notes in note_list:
+        notebook1.add(notes)
+
+    notebook2 = Notebook()
+    for notes in note_list:
+        notebook2.add(notes)
+
+    assert notebook1 == notebook2
+
+
+@given(lists(lists(m21notes()), min_size=2, max_size=5))
+def test_notebook_comparison_not_equals(note_list: List[List[music21.Note]]) -> None:
+    """Test comparisin of notebooks."""
+    notebook1 = Notebook()
+    for notes in note_list:
+        notebook1.add(notes)
+
+    notebook2 = Notebook()
+    for notes in note_list[1:]:
+        notebook2.add(notes)
+
+    assert notebook1 != notebook2

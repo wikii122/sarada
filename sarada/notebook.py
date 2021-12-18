@@ -70,3 +70,9 @@ class Notebook:
 
     def __len__(self) -> int:
         return len(self.notes)
+
+    def __eq__(self, obj: object) -> bool:
+        if not isinstance(obj, Notebook):
+            return False
+
+        return self.notes == obj.notes
