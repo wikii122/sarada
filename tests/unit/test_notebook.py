@@ -56,7 +56,7 @@ def test_notebook_comparison_equals(note_list: List[List[music21.Note]]) -> None
     assert notebook1 == notebook2
 
 
-@given(lists(lists(m21notes()), min_size=2, max_size=5))
+@given(lists(lists(m21notes()), min_size=1, max_size=5))
 def test_notebook_comparison_not_equals(note_list: List[List[music21.Note]]) -> None:
     """Test comparisin of notebooks."""
     notebook1 = Notebook()
