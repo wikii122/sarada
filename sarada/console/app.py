@@ -4,7 +4,6 @@ Run application from the command line.
 from __future__ import annotations
 
 import os
-import pickle
 import sys
 
 from pathlib import Path
@@ -17,8 +16,7 @@ from loguru import logger
 from sarada.console import config as conf
 from sarada.logging import setup_logging
 from sarada.neuron import Neuron
-from sarada.notebook import Musical
-from sarada.numeris import Numeris
+from sarada.notebook import Notebook
 from sarada.parsing import read_scores, store_score
 
 app: Final = typer.Typer()
@@ -68,11 +66,9 @@ def prepare(
 
     logger.info("Processing datasets")
 
-    numeris = notes.numerize()
-
     os.mkdir(model_path)
-    with open(model_path / "data.dat", "wb") as datafile:
-        pickle.dump(numeris, datafile)
+    notes.store(model_path)
+    numeris = notes.numerize()
 
     model = Neuron(input_length=window_size, output_length=numeris.distinct_size)
     model.save(model_path / "model")
@@ -95,7 +91,8 @@ def fit(
     config: Final = conf.read(model_path)
     window_size: Final[int] = config["window_size"]
 
-    numeris = load_data(model_path)
+    notebook = Notebook.read(model_path)
+    numeris = notebook.numerize()
     model = Neuron.load(
         model_path / "model",
         input_length=window_size,
@@ -119,7 +116,8 @@ def generate(model_path: Path = arg_model_path) -> None:
     config: Final = conf.read(model_path)
     window_size: Final[int] = config["window_size"]
 
-    numeris = load_data(model_path)
+    notebook = Notebook.read(model_path)
+    numeris = notebook.numerize()
     model = Neuron.load(
         model_path / "model",
         input_length=window_size,
@@ -130,19 +128,6 @@ def generate(model_path: Path = arg_model_path) -> None:
     pitches = numeris.denumerize(sequence)
 
     store_score(pitches)
-
-
-def load_data(model_path: Path) -> Numeris[Musical]:
-    """Parse music files at path given."""
-    logger.info("Loading datasets from {path}", path=str(model_path))
-    try:
-        with open(model_path / "data.dat", "rb") as datafile:
-            numeris: Numeris[Musical] = pickle.load(datafile)
-    except IOError as ex:
-        logger.error(str(ex))
-        raise typer.Exit(1)
-
-    return numeris
 
 
 if __name__ == "__main__":
