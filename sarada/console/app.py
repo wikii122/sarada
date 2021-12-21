@@ -35,6 +35,7 @@ arg_windows_size = typer.Option(40, help="Size fo window iterating over datasets
 arg_generate_name = typer.Option(
     Path("out.midi"), "-o", "--output", help="Name of generated file"
 )
+arg_generate_length = typer.Option(120, help="Length of generated sequence in notes")
 
 
 @app.command()
@@ -112,7 +113,9 @@ def fit(
 
 @app.command()
 def generate(
-    model_path: Path = arg_model_path, output: Path = arg_generate_name
+    model_path: Path = arg_model_path,
+    output: Path = arg_generate_name,
+    length: int = arg_generate_length,
 ) -> None:
     """
     Generate sequence from model.
@@ -129,7 +132,7 @@ def generate(
         output_length=numeris.distinct_size,
     )
 
-    sequence = model.generate(100)
+    sequence = model.generate(length)
     pitches = numeris.denumerize(sequence)
 
     store_score(pitches, output)
