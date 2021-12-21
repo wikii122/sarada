@@ -7,7 +7,7 @@ import os
 import sys
 
 from pathlib import Path
-from typing import Final
+from typing import Final, Iterable
 
 import typer
 
@@ -36,6 +36,7 @@ arg_generate_name = typer.Option(
     Path("out.midi"), "-o", "--output", help="Name of generated file"
 )
 arg_generate_length = typer.Option(120, help="Length of generated sequence in notes")
+arc_generate_number = typer.Option(1, help="Number of files to generate")
 
 
 @app.command()
@@ -116,6 +117,7 @@ def generate(
     model_path: Path = arg_model_path,
     output: Path = arg_generate_name,
     length: int = arg_generate_length,
+    count: int = arc_generate_number,
 ) -> None:
     """
     Generate sequence from model.
@@ -132,10 +134,28 @@ def generate(
         output_length=numeris.distinct_size,
     )
 
-    sequence = model.generate(length)
-    pitches = numeris.denumerize(sequence)
+    for path in filenames(output, count):
+        sequence = model.generate(length)
+        pitches = numeris.denumerize(sequence)
 
-    store_score(pitches, output)
+        store_score(pitches, path)
+
+
+def filenames(path: Path, count: int) -> Iterable[Path]:
+    """
+    Generate given number of filename.
+
+    >>> [str(p) for p in filenames(Path("a.mid"), 1)]
+    ['a.mid']
+
+    >>> [str(p) for p in filenames(Path("a.mid"), 2)]
+    ['a-1.mid', 'a-2.mid']
+    """
+    if count > 1:
+        for i in range(1, count + 1):
+            yield Path(f"{path.stem}-{i}{path.suffix}")
+    else:
+        yield path
 
 
 if __name__ == "__main__":
