@@ -10,7 +10,7 @@ from hypothesis_fspaths import fspaths
 
 from sarada.console.app import filenames
 
-max_value = 10000
+max_value = 1000
 
 
 @given(fspaths())
