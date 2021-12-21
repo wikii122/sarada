@@ -32,6 +32,9 @@ arg_recursive = typer.Option(
     False, "--recursive", "-r", help="Search directories recursively"
 )
 arg_windows_size = typer.Option(40, help="Size fo window iterating over datasets")
+arg_generate_name = typer.Option(
+    Path("out.midi"), "-o", "--output", help="Name of generated file"
+)
 
 
 @app.command()
@@ -108,7 +111,9 @@ def fit(
 
 
 @app.command()
-def generate(model_path: Path = arg_model_path) -> None:
+def generate(
+    model_path: Path = arg_model_path, output: Path = arg_generate_name
+) -> None:
     """
     Generate sequence from model.
     """
@@ -127,7 +132,7 @@ def generate(model_path: Path = arg_model_path) -> None:
     sequence = model.generate(100)
     pitches = numeris.denumerize(sequence)
 
-    store_score(pitches)
+    store_score(pitches, output)
 
 
 if __name__ == "__main__":

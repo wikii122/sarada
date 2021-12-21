@@ -117,11 +117,10 @@ def read_files(path: Path, recursive: bool) -> Iterator[music21.Stream]:
             )
 
 
-def store_score(pitches: Iterable[Musical]) -> None:
+def store_score(pitches: Iterable[Musical], path: Path) -> None:
     """
     Store sequence in midi file.
     """
-    path = "test_output.mid"
     logger.info("Storing sequence at {path}", path=path)
     stream = create_stream(pitches)
     logger.debug("Saving file in {path}", path=path)
