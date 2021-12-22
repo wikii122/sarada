@@ -27,18 +27,20 @@ def raw_pitches(draw) -> Pitch:  # type: ignore
 
 
 @composite
-def notes(draw) -> music21.Note:  # type: ignore
+def notes(draw) -> Note:  # type: ignore
     pitch = draw(raw_pitches())
+    duration = draw(sampled_from([0.25, 0.5, 0.75, 1.0]))
 
-    return Note(pitch)
+    return Note(duration, pitch)
 
 
 @composite
-def chords(draw) -> music21.Chord:  # type: ignore
+def chords(draw) -> Chord:  # type: ignore
     length = draw(integers(min_value=2, max_value=4))
     pitch = tuple(draw(raw_pitches()) for _ in repeat(None, length))
+    duration = draw(sampled_from([0.25, 0.5, 0.75, 1.0]))
 
-    return Chord(pitch)
+    return Chord(duration, pitch)
 
 
 @composite
