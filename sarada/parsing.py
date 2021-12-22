@@ -59,17 +59,22 @@ def create_stream(pitches: Iterable[Musical]) -> music21.Stream:
 
 @singledispatch
 def make_note(musical: Musical) -> music21.GeneralNote:
+    """
+    Convert Musical to music21 equivalent.
+    """
     raise RuntimeError(f"Dispatch failed for {musical}")
 
 
 @make_note.register
 def make_simple_note(note: Note) -> music21.Note:
-    return music21.Note(note.pitch)
+    m21note = music21.Note(note.pitch, quarterLength=note.duration)
+    return m21note
 
 
 @make_note.register
 def make_chord(chord: Chord) -> music21.Chord:
-    return music21.Chord(chord.pitch)
+    m21chord = music21.Chord(chord.pitch, quarterLength=chord.duration)
+    return m21chord
 
 
 def read_scores(path: Path, recursive: bool = False) -> Notebook:
