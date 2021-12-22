@@ -15,7 +15,7 @@ from sarada.numeris import Numeris
 
 Key = NewType("Key", int)
 Pitch = NewType("Pitch", str)
-QuarterLength = NewType("QuarterLength", int)
+QuarterLength = NewType("QuarterLength", float)
 Score = Iterable[music21.GeneralNote]
 
 filename: Final = "notebook.dat"
@@ -27,6 +27,7 @@ class Note(NamedTuple):
 
 
 class Chord(NamedTuple):
+    duration: QuarterLength
     pitch: Tuple[Pitch, ...]
 
 
@@ -57,11 +58,12 @@ class Notebook:
         for note in notes:
             if isinstance(note, music21.Note):
                 pitch = Pitch(str(note.pitch))
-                duration = note.duration.quarterLength
+                duration = QuarterLength(note.duration.quarterLength)
                 musical = Note(duration, pitch)
             elif isinstance(note, music21.Chord):
                 pitches = tuple(Pitch(str(n.pitch)) for n in note.notes)
-                musical = Chord(pitches)
+                duration = QuarterLength(note.duration.quarterLength)
+                musical = Chord(duration, pitches)
             else:
                 logger.debug("Ignoring note {note}", note=str(note))
                 continue
