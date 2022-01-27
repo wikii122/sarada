@@ -11,7 +11,7 @@ from loguru import logger
 from music21 import converter, exceptions21, instrument
 
 from sarada import music21
-from sarada.notebook import Chord, Musical, Note, Notebook
+from sarada.notebook import Chord, Musical, Note, Notebook, Rest
 
 supported_extensions: Final = [
     ".abc",
@@ -75,6 +75,12 @@ def make_simple_note(note: Note) -> music21.Note:
 def make_chord(chord: Chord) -> music21.Chord:
     m21chord = music21.Chord(chord.pitch, quarterLength=chord.duration)
     return m21chord
+
+
+@make_note.register
+def make_rest(rest: Rest) -> music21.Chord:
+    m21rest = music21.Rest(quarterLength=rest.duration)
+    return m21rest
 
 
 def read_scores(path: Path, recursive: bool = False) -> Notebook:

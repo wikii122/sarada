@@ -7,9 +7,9 @@ from hypothesis.strategies import lists
 from music21 import converter
 
 from sarada import music21
-from sarada.notebook import Musical, Note
+from sarada.notebook import Chord, Musical, Note
 from sarada.parsing import create_stream, extract_notes
-from tests.unit.strategies import chords, notes
+from tests.unit.strategies import chords, notes, rests
 
 
 def test_extract_note_pitch() -> None:
@@ -53,23 +53,33 @@ def test_extract_note_chords() -> None:
     assert chord.figure == "Gm7"  # type: ignore
 
 
-# Supressing health check because drawing multiple values for each list item triggers it
-@given(lists(notes() | chords()))
-def test_create_stream_length_and_values(musicals: List[Musical]) -> None:
+@given(lists(notes() | chords() | rests()))
+def test_create_stream_length(musicals: List[Musical]) -> None:
     stream = create_stream(musicals)
-    assert len(stream.notes) == len(musicals)
-    for note, musical in zip(stream.notes, musicals):
+    assert len(stream) == len(musicals)
+
+
+@given(lists(notes() | chords() | rests()))
+def test_create_stream_values(musicals: List[Musical]) -> None:
+    stream = create_stream(musicals)
+    for note, musical in zip(stream, musicals):
         if isinstance(musical, Note):
             assert str(note.pitch) == musical.pitch
-        else:
+        elif isinstance(musical, Chord):
             assert tuple(str(n.pitch) for n in note.notes) == musical.pitch
 
 
-@given(lists(notes() | chords()))
-def test_create_stream_notes_offsets(pitches: List[Musical]) -> None:
-    print(pitches)
+@given(lists(notes() | chords() | rests()))
+def test_create_stream_durations(musicals: List[Musical]) -> None:
+    stream = create_stream(musicals)
+    for note, musical in zip(stream, musicals):
+        assert note.duration.quarterLength == musical.duration
+
+
+@given(lists(notes() | chords() | rests()))
+def test_create_stream_notes_offsets_notes(pitches: List[Musical]) -> None:
     stream = create_stream(pitches)
     prv: music21.Note
     nxt: music21.Note
     for prv, nxt in zip(stream.notes[:-1], stream.notes[1:]):
-        assert nxt.offset - prv.offset == 0.5
+        assert nxt.offset - prv.offset > 0

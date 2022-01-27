@@ -9,7 +9,7 @@ from typing import Optional
 from hypothesis.strategies import composite, integers, none, sampled_from
 
 from sarada import music21
-from sarada.notebook import Chord, Note, Pitch
+from sarada.notebook import Chord, Note, Pitch, Rest
 
 
 @composite
@@ -44,8 +44,17 @@ def chords(draw) -> Chord:  # type: ignore
 
 
 @composite
+def rests(draw) -> Rest:  # type: ignore
+    duration = draw(sampled_from([0.25, 0.5, 0.75, 1.0]))
+
+    return Rest(duration)
+
+
+@composite
 def m21notes(draw) -> music21.Note:  # type: ignore
-    length = draw(integers(min_value=1, max_value=4))
+    length = draw(integers(min_value=0, max_value=4))
+    if length == 0:
+        return music21.Rest()
     if length == 1:
         pitch = draw(raw_pitches())
         return music21.Note(pitch)

@@ -31,7 +31,11 @@ class Chord(NamedTuple):
     pitch: Tuple[Pitch, ...]
 
 
-Musical = Union[Note, Chord]
+class Rest(NamedTuple):
+    duration: QuarterLength
+
+
+Musical = Union[Note, Chord, Rest]
 Musicals = List[Musical]
 
 
@@ -64,6 +68,9 @@ class Notebook:
                 pitches = tuple(Pitch(str(n.pitch)) for n in note.notes)
                 duration = QuarterLength(note.duration.quarterLength)
                 musical = Chord(duration, pitches)
+            elif isinstance(note, music21.Rest):
+                duration = QuarterLength(note.duration.quarterLength)
+                musical = Rest(duration)
             else:
                 logger.debug("Ignoring note {note}", note=str(note))
                 continue
